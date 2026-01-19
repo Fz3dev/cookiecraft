@@ -1,0 +1,94 @@
+/**
+ * Animations - Modern transitions and effects
+ */
+
+/* Fade In Animation */
+@keyframes cc-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide Up Animation */
+@keyframes cc-slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Slide Down Animation */
+@keyframes cc-slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Scale In Animation */
+@keyframes cc-scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Backdrop Fade In */
+@keyframes cc-backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animation Classes */
+.cc-animate-fadeIn {
+  animation: cc-fadeIn 0.3s ease-out;
+}
+
+.cc-animate-slideUp {
+  animation: cc-slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cc-animate-slideDown {
+  animation: cc-slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cc-animate-scaleIn {
+  animation: cc-scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .cc-banner {
+    transition: none;
+  }
+
+  .cc-animate-fadeIn,
+  .cc-animate-slideUp,
+  .cc-animate-slideDown,
+  .cc-animate-scaleIn {
+    animation: none;
+  }
+
+  .cc-btn {
+    transition: none;
+  }
+}

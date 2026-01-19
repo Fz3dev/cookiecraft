@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Consent - Test Complet</title>
+  <link rel="stylesheet" href="../dist/cookiecraft.css?v=5">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #667eea;
+    }
+    .control-group {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .control-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .control-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: white;
+    }
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .btn {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    .debug {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #1a1a1a;
+      color: #0f0;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.875rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .debug-line {
+      margin: 0.25rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Test Complet - Cookie Consent</h1>
+
+    <div class="control-group">
+      <label for="banner-layout">Layout de la Bannière</label>
+      <select id="banner-layout">
+        <option value="bar">Bar (pleine largeur)</option>
+        <option value="box">Box (compact)</option>
+        <option value="floating" selected>Floating (très compact)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="banner-position">Position de la Bannière</label>
+      <select id="banner-position">
+        <option value="bottom">Bottom</option>
+        <option value="top">Top</option>
+        <option value="center">Center</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="bottom-right" selected>Bottom Right</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="preferences-position">Position de la Modal Préférences</label>
+      <select id="preferences-position">
+        <option value="center">Center (défaut)</option>
+        <option value="bottom-left" selected>Bottom Left</option>
+        <option value="bottom-right">Bottom Right</option>
+        <option value="top-left">Top Left</option>
+        <option value="top-right">Top Right</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="widget-enabled">Widget Permanent</label>
+      <select id="widget-enabled">
+        <option value="true" selected>Activé</option>
+        <option value="false">Désactivé</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="widget-position">Position du Widget</label>
+      <select id="widget-position">
+        <option value="bottom-left" selected>Bottom Left</option>
+        <option value="bottom-right">Bottom Right</option>
+        <option value="top-left">Top Left</option>
+        <option value="top-right">Top Right</option>
+      </select>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="launchTest()">🚀 Lancer le Test</button>
+      <button class="btn btn-secondary" onclick="resetTest()">🔄 Reset</button>
+    </div>
+
+    <div class="debug" id="debug">
+      <div class="debug-line">📋 Console de débogage...</div>
+    </div>
+  </div>
+
+  <script src="../dist/cookiecraft.min.js?v=5"></script>
+  <script>
+    let currentConsent = null;
+
+    function log(message) {
+      const debug = document.getElementById('debug');
+      const time = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.className = 'debug-line';
+      line.textContent = `[${time}] ${message}`;
+      debug.appendChild(line);
+      debug.scrollTop = debug.scrollHeight;
+      console.log(message);
+    }
+
+    function resetTest() {
+      log('🔄 Reset...');
+
+      // Destroy current instance
+      if (currentConsent) {
+        currentConsent.destroy();
+        currentConsent = null;
+        log('✅ Instance détruite');
+      }
+
+      // Clean up DOM
+      document.querySelectorAll('.cc-banner, .cc-modal, .cc-widget').forEach(el => {
+        el.remove();
+        log('🗑️ Élément supprimé: ' + el.className);
+      });
+
+      // Clear storage
+      localStorage.removeItem('cookiecraft_consent');
+      log('🗑️ localStorage nettoyé');
+
+      // Clear debug
+      document.getElementById('debug').innerHTML = '<div class="debug-line">📋 Console nettoyée</div>';
+    }
+
+    function launchTest() {
+      resetTest();
+
+      const layout = document.getElementById('banner-layout').value;
+      const position = document.getElementById('banner-position').value;
+      const preferencesPosition = document.getElementById('preferences-position').value;
+      const showWidget = document.getElementById('widget-enabled').value === 'true';
+      const widgetPosition = document.getElementById('widget-position').value;
+
+      log('⚙️ Configuration:');
+      log(`  • Banner: ${layout} - ${position}`);
+      log(`  • Preferences: ${preferencesPosition}`);
+      log(`  • Widget: ${showWidget ? widgetPosition : 'désactivé'}`);
+
+      const config = {
+        mode: 'opt-in',
+        autoShow: false,
+        revision: 1,
+        gtmConsentMode: false,
+
+        categories: {
+          necessary: {
+            enabled: true,
+            readOnly: true,
+            label: 'Essentiels',
+            description: 'Nécessaires au bon fonctionnement du site'
+          },
+          analytics: {
+            enabled: false,
+            readOnly: false,
+            label: 'Statistiques',
+            description: 'Pour comprendre comment vous utilisez notre site'
+          },
+          marketing: {
+            enabled: false,
+            readOnly: false,
+            label: 'Marketing',
+            description: 'Pour vous proposer du contenu personnalisé'
+          }
+        },
+
+        theme: 'light',
+        primaryColor: '#667eea',
+        layout: layout,
+        position: position,
+        preferencesPosition: preferencesPosition,
+        showWidget: showWidget,
+        widgetPosition: widgetPosition,
+
+        translations: {
+          title: '🍪 Cookies et confidentialité',
+          description: 'Nous utilisons des cookies pour améliorer votre expérience.',
+          preferencesTitle: '⚙️ Gérer mes cookies',
+          privacyPolicyUrl: 'https://example.com/politique-confidentialite',
+          privacyPolicyLabel: 'En savoir plus'
+        },
+
+        onAccept: (categories) => {
+          log('✅ Consentement accepté');
+          log('⏳ Widget devrait apparaître dans 500ms...');
+        },
+
+        onReject: () => {
+          log('❌ Consentement rejeté');
+          log('⏳ Widget devrait apparaître dans 500ms...');
+        }
+      };
+
+      try {
+        currentConsent = new CookieCraft.CookieConsent(config);
+        log('✅ Instance créée');
+
+        currentConsent.init();
+        log('✅ Instance initialisée');
+
+        currentConsent.show();
+        log('✅ Bannière affichée');
+
+        // Listen for widget
+        setTimeout(() => {
+          const widget = document.querySelector('.cc-widget');
+          if (widget) {
+            log('✅ Widget trouvé dans le DOM!');
+            log('   Style: ' + widget.style.cssText);
+            log('   Classes: ' + widget.className);
+          } else {
+            log('❌ Widget introuvable dans le DOM');
+          }
+        }, 1000);
+
+      } catch (error) {
+        log('❌ Erreur: ' + error.message);
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>

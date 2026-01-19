@@ -1,0 +1,125 @@
+/**
+ * Floating Widget Styles - Permanent cookie settings button
+ */
+
+/* Widget Container */
+.cc-widget {
+  position: fixed;
+  z-index: 9998;
+  background: var(--cc-primary);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0);
+  opacity: 0;
+  font-family: var(--cc-font-family);
+  user-select: none;
+  min-height: 44px;
+}
+
+.cc-widget.is-visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.cc-widget:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cc-widget:active {
+  transform: scale(0.98);
+}
+
+.cc-widget:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+/* Widget Icon */
+.cc-widget__icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Widget Text */
+.cc-widget__text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Position Variants */
+.cc-widget--bottom-right {
+  bottom: 1.5rem;
+  right: 1.5rem;
+}
+
+.cc-widget--bottom-left {
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+.cc-widget--top-right {
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.cc-widget--top-left {
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+/* Compact mode (hide text on mobile) */
+@media (max-width: 640px) {
+  .cc-widget__text {
+    display: none;
+  }
+
+  .cc-widget {
+    padding: 0.75rem;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    justify-content: center;
+  }
+}
+
+/* Animation when appearing */
+@keyframes cc-widget-bounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cc-widget.is-visible {
+  animation: cc-widget-bounce 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .cc-widget {
+    transition: none;
+  }
+
+  .cc-widget.is-visible {
+    animation: none;
+  }
+
+  .cc-widget:hover {
+    transform: none;
+  }
+}

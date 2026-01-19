@@ -1,0 +1,347 @@
+/**
+ * Preferences Modal Styles
+ */
+
+/* Modal Overlay */
+.cc-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--cc-transition);
+}
+
+.cc-modal.is-visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cc-modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--cc-overlay);
+  cursor: pointer;
+}
+
+/* Modal Content */
+.cc-modal__content {
+  position: relative;
+  background: var(--cc-bg);
+  border-radius: var(--cc-border-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.9);
+  transition: transform var(--cc-transition);
+}
+
+.cc-modal.is-visible .cc-modal__content {
+  transform: scale(1);
+}
+
+/* Modal Header */
+.cc-modal__header {
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, var(--cc-primary) 0%, var(--cc-primary-hover) 100%);
+  border-radius: var(--cc-border-radius) var(--cc-border-radius) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cc-modal__header h2 {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.cc-modal__close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-modal__close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.cc-modal__close:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Modal Body */
+.cc-modal__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Category Item */
+.cc-category {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--cc-border);
+}
+
+.cc-category:last-child {
+  border-bottom: none;
+}
+
+.cc-category__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.cc-category__info {
+  flex: 1;
+}
+
+.cc-category__info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cc-text);
+}
+
+.cc-category__info p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--cc-text-secondary);
+}
+
+/* Toggle Switch */
+.cc-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.cc-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cc-toggle__slider {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  background: #d1d5db;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.cc-toggle__slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cc-toggle input:checked + .cc-toggle__slider {
+  background: var(--cc-primary);
+}
+
+.cc-toggle input:checked + .cc-toggle__slider::before {
+  transform: translateX(24px);
+}
+
+.cc-toggle input:focus-visible + .cc-toggle__slider {
+  outline: 2px solid var(--cc-primary);
+  outline-offset: 2px;
+}
+
+.cc-toggle--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cc-toggle--disabled input:checked + .cc-toggle__slider {
+  background: #9ca3af;
+}
+
+/* Modal Footer */
+.cc-modal__footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--cc-border);
+  display: flex;
+  gap: var(--cc-gap);
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cc-modal__footer-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cc-modal__footer-actions {
+  display: flex;
+  gap: var(--cc-gap);
+}
+
+.cc-privacy-link {
+  color: var(--cc-text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cc-privacy-link:hover {
+  color: var(--cc-primary);
+  text-decoration: underline;
+}
+
+/* Dark Theme for Modal */
+@media (prefers-color-scheme: dark) {
+  .cc-modal[data-theme='auto'] .cc-modal__content {
+    background: #1a1a1a;
+  }
+
+  .cc-modal[data-theme='auto'] .cc-modal__close:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.cc-modal[data-theme='dark'] .cc-modal__content {
+  background: #1a1a1a;
+}
+
+.cc-modal[data-theme='dark'] .cc-modal__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Position Variants */
+/* Center is the default, already styled above */
+
+.cc-modal--bottom-right {
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 1.5rem;
+}
+
+.cc-modal--bottom-right .cc-modal__content {
+  max-width: 450px;
+  transform: translateX(100%);
+}
+
+.cc-modal--bottom-right.is-visible .cc-modal__content {
+  transform: translateX(0);
+}
+
+.cc-modal--bottom-left {
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 1.5rem;
+}
+
+.cc-modal--bottom-left .cc-modal__content {
+  max-width: 450px;
+  transform: translateX(-100%);
+}
+
+.cc-modal--bottom-left.is-visible .cc-modal__content {
+  transform: translateX(0);
+}
+
+.cc-modal--top-right {
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1.5rem;
+}
+
+.cc-modal--top-right .cc-modal__content {
+  max-width: 450px;
+  transform: translateX(100%);
+}
+
+.cc-modal--top-right.is-visible .cc-modal__content {
+  transform: translateX(0);
+}
+
+.cc-modal--top-left {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 1.5rem;
+}
+
+.cc-modal--top-left .cc-modal__content {
+  max-width: 450px;
+  transform: translateX(-100%);
+}
+
+.cc-modal--top-left.is-visible .cc-modal__content {
+  transform: translateX(0);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .cc-modal__content {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .cc-modal__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cc-modal__footer-links {
+    order: 2;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .cc-modal__footer-actions {
+    order: 1;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cc-modal__footer .cc-btn {
+    width: 100%;
+  }
+}

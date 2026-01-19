@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webflow Cookie Consent - Basic Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #0066cc;
+    }
+    .demo-btn {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+    }
+    .demo-btn:hover {
+      background: #0052a3;
+    }
+    .info-box {
+      background: #f3f4f6;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    pre {
+      background: #1a1a1a;
+      color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Webflow Cookie Consent - Basic Example</h1>
+
+  <p>
+    Cet exemple montre l'utilisation basique de Webflow Cookie Consent.
+    Le banner s'affiche automatiquement au chargement de la page.
+  </p>
+
+  <div class="info-box">
+    <h3>Actions</h3>
+    <button class="demo-btn" id="show-banner">Afficher le banner</button>
+    <button class="demo-btn" id="show-preferences">Préférences</button>
+    <button class="demo-btn" id="reset-consent">Réinitialiser</button>
+    <button class="demo-btn" id="get-consent">Voir le consentement</button>
+  </div>
+
+  <div class="info-box">
+    <h3>État actuel</h3>
+    <pre id="consent-status">Aucun consentement enregistré</pre>
+  </div>
+
+  <h2>Scripts bloqués (exemples)</h2>
+
+  <p>Ces scripts ne se chargeront que si l'utilisateur donne son consentement:</p>
+
+  <!-- Google Analytics - Bloqué jusqu'à consentement analytics -->
+  <script type="text/plain" data-cookieconsent="analytics">
+    console.log('✅ Google Analytics activé!');
+  </script>
+
+  <!-- Facebook Pixel - Bloqué jusqu'à consentement marketing -->
+  <script type="text/plain" data-cookieconsent="marketing">
+    console.log('✅ Facebook Pixel activé!');
+  </script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../dist/cookiecraft.css">
+
+  <!-- JavaScript -->
+  <script src="../dist/cookiecraft.js"></script>
+
+  <!-- Initialize -->
+  <script>
+    const cookieConsent = new CookieCraft.CookieConsent({
+      mode: 'opt-in',
+      autoShow: true,
+      revision: 1,
+
+      categories: {
+        necessary: {
+          enabled: true,
+          readOnly: true,
+          label: 'Essentiels',
+          description: 'Nécessaires au bon fonctionnement du site'
+        },
+        analytics: {
+          enabled: false,
+          readOnly: false,
+          label: 'Statistiques',
+          description: 'Pour comprendre comment vous utilisez notre site'
+        },
+        marketing: {
+          enabled: false,
+          readOnly: false,
+          label: 'Marketing',
+          description: 'Pour vous proposer du contenu personnalisé'
+        }
+      },
+
+      theme: 'auto',
+      primaryColor: '#0066cc',
+      backdropBlur: true,
+
+      translations: {
+        title: '🍪 Nous utilisons des cookies',
+        description: 'Pour améliorer votre expérience sur notre site, nous utilisons des cookies. Vous pouvez choisir les cookies que vous acceptez.',
+        acceptAll: 'Tout accepter',
+        rejectAll: 'Tout rejeter',
+        customize: 'Personnaliser',
+        savePreferences: 'Sauvegarder'
+      },
+
+      onAccept: (categories) => {
+        console.log('✅ Consentement accepté:', categories);
+        updateStatus();
+      },
+
+      onChange: (categories) => {
+        console.log('🔄 Consentement modifié:', categories);
+        updateStatus();
+      },
+
+      onReject: () => {
+        console.log('❌ Consentement rejeté');
+        updateStatus();
+      }
+    });
+
+    // Initialize
+    cookieConsent.init();
+
+    // Make available globally for demo
+    window.cookieConsent = cookieConsent;
+
+    // Demo button handlers
+    document.getElementById('show-banner').addEventListener('click', () => {
+      cookieConsent.show();
+    });
+
+    document.getElementById('show-preferences').addEventListener('click', () => {
+      cookieConsent.showPreferences();
+    });
+
+    document.getElementById('reset-consent').addEventListener('click', () => {
+      if (confirm('Voulez-vous vraiment réinitialiser le consentement ?')) {
+        cookieConsent.reset();
+        updateStatus();
+      }
+    });
+
+    document.getElementById('get-consent').addEventListener('click', () => {
+      updateStatus();
+    });
+
+    // Update status display
+    function updateStatus() {
+      const consent = cookieConsent.getConsent();
+      const statusEl = document.getElementById('consent-status');
+
+      if (consent) {
+        statusEl.textContent = JSON.stringify(consent, null, 2);
+      } else {
+        statusEl.textContent = 'Aucun consentement enregistré';
+      }
+    }
+
+    // Event listeners
+    cookieConsent.on('consent:init', () => {
+      console.log('📦 Cookie Consent initialisé');
+      updateStatus();
+    });
+
+    cookieConsent.on('script:activated', (data) => {
+      console.log('🚀 Script activé:', data);
+    });
+
+    // Initial status
+    updateStatus();
+  </script>
+</body>
+</html>

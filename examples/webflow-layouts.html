@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Consent - Layouts Demo</title>
+  <link rel="stylesheet" href="../dist/cookiecraft.css?v=4">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 3rem;
+      font-size: 2.5rem;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
+    .demo-card:hover {
+      transform: translateY(-4px);
+    }
+    .demo-card h2 {
+      margin-top: 0;
+      color: #667eea;
+      font-size: 1.25rem;
+    }
+    .demo-card p {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .demo-card code {
+      display: block;
+      background: #f5f5f5;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #5568d3;
+    }
+    .note {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+    }
+    .note h3 {
+      margin-top: 0;
+      color: #667eea;
+    }
+    .note ul {
+      color: #666;
+      line-height: 1.8;
+    }
+    .note strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍪 Cookie Consent - Layouts Demo</h1>
+
+    <div class="note">
+      <h3>Nouveautés</h3>
+      <ul>
+        <li><strong>3 layouts disponibles :</strong> bar (pleine largeur), box (modal compact), floating (petit dans le coin)</li>
+        <li><strong>5 positions :</strong> bottom, top, center, bottom-left, bottom-right</li>
+        <li><strong>Widget permanent :</strong> Un bouton flottant qui reste visible pour modifier les préférences à tout moment</li>
+        <li><strong>4 positions pour le widget :</strong> bottom-left, bottom-right, top-left, top-right</li>
+      </ul>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Layout 1: Bar Bottom (Default) -->
+      <div class="demo-card">
+        <h2>Layout Bar (Bottom)</h2>
+        <p>Bannière pleine largeur en bas de page. Style classique et non-intrusif.</p>
+        <code>layout: 'bar'
+position: 'bottom'</code>
+        <button class="btn" onclick="showDemo1()">Tester</button>
+      </div>
+
+      <!-- Layout 2: Bar Top -->
+      <div class="demo-card">
+        <h2>Layout Bar (Top)</h2>
+        <p>Bannière pleine largeur en haut de page. Très visible dès l'arrivée.</p>
+        <code>layout: 'bar'
+position: 'top'</code>
+        <button class="btn" onclick="showDemo2()">Tester</button>
+      </div>
+
+      <!-- Layout 3: Box Bottom-Right -->
+      <div class="demo-card">
+        <h2>Layout Box (Bottom-Right)</h2>
+        <p>Petite modal compacte en bas à droite. Moderne et discret.</p>
+        <code>layout: 'box'
+position: 'bottom-right'</code>
+        <button class="btn" onclick="showDemo3()">Tester</button>
+      </div>
+
+      <!-- Layout 4: Box Bottom-Left -->
+      <div class="demo-card">
+        <h2>Layout Box (Bottom-Left)</h2>
+        <p>Petite modal compacte en bas à gauche.</p>
+        <code>layout: 'box'
+position: 'bottom-left'</code>
+        <button class="btn" onclick="showDemo4()">Tester</button>
+      </div>
+
+      <!-- Layout 5: Floating Bottom-Right -->
+      <div class="demo-card">
+        <h2>Layout Floating (Bottom-Right)</h2>
+        <p>Encore plus compact, comme une notification. Très discret.</p>
+        <code>layout: 'floating'
+position: 'bottom-right'</code>
+        <button class="btn" onclick="showDemo5()">Tester</button>
+      </div>
+
+      <!-- Layout 6: Center Modal -->
+      <div class="demo-card">
+        <h2>Layout Box (Center)</h2>
+        <p>Modal centrée avec overlay. Maximum d'attention.</p>
+        <code>layout: 'box'
+position: 'center'</code>
+        <button class="btn" onclick="showDemo6()">Tester</button>
+      </div>
+    </div>
+
+    <div class="note">
+      <h3>Position de la Modal de Préférences</h3>
+      <p>Quand l'utilisateur clique sur "Personnaliser", vous pouvez choisir où la modal s'ouvre :</p>
+      <ul>
+        <li><code>preferencesPosition: 'center'</code> - Centré (par défaut)</li>
+        <li><code>preferencesPosition: 'bottom-right'</code> - En bas à droite</li>
+        <li><code>preferencesPosition: 'bottom-left'</code> - En bas à gauche</li>
+        <li><code>preferencesPosition: 'top-right'</code> - En haut à droite</li>
+        <li><code>preferencesPosition: 'top-left'</code> - En haut à gauche</li>
+      </ul>
+      <button class="btn" onclick="showDemo7()">Tester Modal Bottom-Right</button>
+    </div>
+
+    <div class="note">
+      <h3>Widget Permanent</h3>
+      <p>Après avoir donné son consentement, un petit bouton reste visible en permanence pour permettre à l'utilisateur de modifier ses préférences.</p>
+      <p><strong>Options :</strong></p>
+      <ul>
+        <li><code>showWidget: true</code> - Activer le widget permanent (par défaut)</li>
+        <li><code>showWidget: false</code> - Désactiver le widget</li>
+        <li><code>widgetPosition: 'bottom-right'</code> - Position du widget (bottom-left, bottom-right, top-left, top-right)</li>
+      </ul>
+      <button class="btn" onclick="showDemo8()">Tester avec Widget</button>
+    </div>
+  </div>
+
+  <script src="../dist/cookiecraft.min.js?v=4"></script>
+  <script>
+    let currentConsent = null;
+
+    // Configuration commune
+    const baseConfig = {
+      mode: 'opt-in',
+      autoShow: false,
+      revision: 1,
+      gtmConsentMode: false,
+      categories: {
+        necessary: {
+          enabled: true,
+          readOnly: true,
+          label: 'Essentiels',
+          description: 'Nécessaires au bon fonctionnement du site'
+        },
+        analytics: {
+          enabled: false,
+          readOnly: false,
+          label: 'Statistiques',
+          description: 'Pour comprendre comment vous utilisez notre site'
+        },
+        marketing: {
+          enabled: false,
+          readOnly: false,
+          label: 'Marketing',
+          description: 'Pour vous proposer du contenu personnalisé'
+        }
+      },
+      theme: 'light',
+      primaryColor: '#667eea'
+    };
+
+    function resetConsent() {
+      // Destroy current instance if it exists
+      if (currentConsent) {
+        currentConsent.destroy();
+        currentConsent = null;
+      }
+
+      // Clean up any remaining DOM elements (safety cleanup)
+      document.querySelectorAll('.cc-banner, .cc-modal, .cc-widget').forEach(el => el.remove());
+
+      // Clear stored consent
+      localStorage.removeItem('cookiecraft_consent');
+    }
+
+    function showDemo1() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'bar',
+        position: 'bottom',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo2() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'bar',
+        position: 'top',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo3() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'box',
+        position: 'bottom-right',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo4() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'box',
+        position: 'bottom-left',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo5() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'floating',
+        position: 'bottom-right',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo6() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'box',
+        position: 'center',
+        disablePageInteraction: true,
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo7() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'box',
+        position: 'bottom-right',
+        preferencesPosition: 'bottom-right',
+        showWidget: false
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+
+    function showDemo8() {
+      resetConsent();
+      currentConsent = new CookieCraft.CookieConsent({
+        ...baseConfig,
+        layout: 'floating',
+        position: 'bottom-right',
+        preferencesPosition: 'bottom-left',
+        showWidget: true,
+        widgetPosition: 'bottom-left',
+        translations: {
+          cookieSettings: 'Paramètres cookies',
+          cookies: 'Cookies'
+        }
+      });
+      currentConsent.init();
+      currentConsent.show();
+    }
+  </script>
+</body>
+</html>

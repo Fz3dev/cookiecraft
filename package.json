@@ -1,0 +1,85 @@
+{
+  "name": "cookiecraft",
+  "version": "1.0.0",
+  "description": "Lightweight GDPR-compliant cookie consent library - Open-source alternative to Axept.io for any website",
+  "main": "dist/cookiecraft.js",
+  "module": "dist/cookiecraft.esm.js",
+  "types": "dist/types/index.d.ts",
+  "jsdelivr": "dist/cookiecraft.min.js",
+  "unpkg": "dist/cookiecraft.min.js",
+  "files": [
+    "dist",
+    "README.md",
+    "WEBFLOW_GUIDE.md"
+  ],
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c && npm run size",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:a11y": "jest --testMatch='**/accessibility/**/*.test.ts'",
+    "lint": "eslint src/**/*.ts",
+    "type-check": "tsc --noEmit",
+    "size": "size-limit",
+    "prepublishOnly": "npm run lint && npm run type-check && npm run build && npm test"
+  },
+  "keywords": [
+    "cookie",
+    "consent",
+    "gdpr",
+    "rgpd",
+    "privacy",
+    "compliance",
+    "eprivacy",
+    "gtm",
+    "google-consent-mode",
+    "typescript",
+    "vanilla-js",
+    "cookie-banner",
+    "consent-management",
+    "webflow",
+    "wordpress",
+    "shopify"
+  ],
+  "author": "Fawsy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cookiecraft"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@size-limit/preset-small-lib": "^11.0.2",
+    "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "autoprefixer": "^10.4.18",
+    "cssnano": "^6.1.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "jest-axe": "^8.0.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8.4.35",
+    "rollup": "^4.13.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "size-limit": "^11.0.2",
+    "ts-jest": "^29.1.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.4.2"
+  },
+  "size-limit": [
+    {
+      "path": "dist/cookiecraft.min.js",
+      "limit": "12 KB"
+    },
+    {
+      "path": "dist/cookiecraft.css",
+      "limit": "3 KB"
+    }
+  ]
+}
