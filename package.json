@@ -1,7 +1,7 @@
 {
   "name": "cookiecraft",
   "version": "1.0.0",
-  "description": "Lightweight GDPR-compliant cookie consent library - Open-source alternative to Axept.io for any website",
+  "description": "Lightweight GDPR-compliant cookie consent library for any website",
   "main": "dist/cookiecraft.js",
   "module": "dist/cookiecraft.esm.js",
   "types": "dist/types/index.d.ts",

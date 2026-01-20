@@ -2,12 +2,12 @@
 
 🍪 **Lightweight GDPR-compliant cookie consent library for any website**
 
-Open-source alternative to Axept.io with modern UI, full RGPD compliance, and Google Consent Mode v2 support. Perfect for Webflow, WordPress, Shopify, or any website.
+Open-source cookie consent library with modern UI, full RGPD compliance, and Google Consent Mode v2 support. Perfect for Webflow, WordPress, Shopify, or any website.
 
 ## Features
 
 - ✅ **GDPR Compliant** - Full opt-in, cookie blocking before consent
-- 🎨 **Modern UI** - Beautiful design inspired by Axept.io
+- 🎨 **Modern UI** - Beautiful, professional design
 - ⚡ **Lightweight** - < 15KB total (JS + CSS minified)
 - 🚀 **Zero Dependencies** - Pure Vanilla JavaScript
 - 🎯 **Universal** - Works on any website (Webflow, WordPress, Shopify, custom sites)
@@ -393,19 +393,7 @@ npm run size
 
 ## Why This Library?
 
-### vs Axept.io
-
-| Feature | Axept.io | CookieCraft |
-|---------|----------|-------------|
-| **Price** | Freemium → Paid | 100% Free |
-| **Code** | Proprietary | Open Source |
-| **Hosting** | SaaS only | Self-hosted OK |
-| **Size** | ~50KB+ | <15KB |
-| **GTM v2** | ✅ Gold partner | ✅ Integrated |
-| **Customization** | Dashboard UI | CSS variables |
-| **Vendor Lock-in** | Yes | No |
-
-### vs Cookiebot/OneTrust
+### vs Premium Solutions
 
 - **Cost**: Free vs €39+/month
 - **Performance**: 10-15KB vs 50-100KB+
@@ -423,7 +411,6 @@ MIT © 2026
 ## Credits
 
 Inspired by:
-- [Axept.io](https://www.axept.io) - Premium UX design
 - [vanilla-cookieconsent](https://github.com/orestbida/cookieconsent) - Technical patterns
 
 ---

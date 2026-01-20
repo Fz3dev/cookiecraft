@@ -1,7 +1,6 @@
 /**
  * CookieCraft
  * Lightweight GDPR-compliant cookie consent library
- * Open-source alternative to Axept.io
  */
 
 export { CookieConsent } from './core/CookieConsent';
