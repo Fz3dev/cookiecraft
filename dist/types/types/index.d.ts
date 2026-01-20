@@ -49,6 +49,7 @@ export interface ConsentConfig {
     preferencesPosition?: 'center' | 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
     showWidget?: boolean;
     widgetPosition?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+    widgetStyle?: 'compact' | 'full';
     language?: string;
     translations?: Translation;
     gtmConsentMode?: boolean;

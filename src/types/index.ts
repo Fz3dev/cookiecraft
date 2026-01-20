@@ -62,6 +62,7 @@ export interface ConsentConfig {
   // Floating widget
   showWidget?: boolean;                  // Show permanent cookie settings button
   widgetPosition?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+  widgetStyle?: 'compact' | 'full';      // compact = icon only, full = icon + text
 
   // Content
   language?: string;

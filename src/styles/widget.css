@@ -77,13 +77,26 @@
   left: 1.5rem;
 }
 
-/* Compact mode (hide text on mobile) */
+/* Compact style (icon only) */
+.cc-widget--compact {
+  padding: 0.75rem;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  justify-content: center;
+}
+
+.cc-widget--compact .cc-widget__text {
+  display: none;
+}
+
+/* Auto-compact on mobile for full style */
 @media (max-width: 640px) {
-  .cc-widget__text {
+  .cc-widget--full .cc-widget__text {
     display: none;
   }
 
-  .cc-widget {
+  .cc-widget--full {
     padding: 0.75rem;
     border-radius: 50%;
     width: 56px;

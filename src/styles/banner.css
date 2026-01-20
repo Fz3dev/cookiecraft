@@ -178,21 +178,21 @@
   transform: translateY(0);
 }
 
-/* Responsive - Desktop */
+/* Responsive - Desktop (only for bar layout) */
 @media (min-width: 768px) {
-  .cc-banner__container {
+  .cc-banner--bar .cc-banner__container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
   }
 
-  .cc-banner__content {
+  .cc-banner--bar .cc-banner__content {
     flex: 1;
     margin-bottom: 0;
   }
 
-  .cc-banner__actions {
+  .cc-banner--bar .cc-banner__actions {
     flex-shrink: 0;
   }
 }

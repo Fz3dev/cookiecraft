@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CookieCraft - Configurateur</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Fz3dev/cookiecraft@main/dist/cookiecraft.css">
+  <style>
+    :root {
+      --demo-primary: #667eea;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    .demo-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .demo-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .demo-header p {
+      opacity: 0.9;
+      font-size: 0.875rem;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 50%;
+      left: 1.5rem;
+      transform: translateY(-50%);
+      color: white;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      font-size: 0.875rem;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+    }
+
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 100px);
+    }
+
+    @media (max-width: 900px) {
+      .demo-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .demo-sidebar {
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      padding: 1.25rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 100px);
+    }
+
+    .config-section {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .config-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .config-section h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .config-section h3 .step {
+      background: var(--demo-primary);
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    .select-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .select-btn {
+      padding: 0.4rem 0.75rem;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #374151;
+    }
+
+    .select-btn:hover {
+      border-color: var(--demo-primary);
+    }
+
+    .select-btn.active {
+      background: var(--demo-primary);
+      border-color: var(--demo-primary);
+      color: white;
+    }
+
+    .select-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Color Picker */
+    .color-section {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .color-picker-box {
+      position: relative;
+    }
+
+    .color-input {
+      width: 56px;
+      height: 56px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .color-input::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-input::-webkit-color-swatch {
+      border: none;
+      border-radius: 12px;
+    }
+
+    .color-hex {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: #6b7280;
+      font-family: monospace;
+    }
+
+    .color-presets {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .color-preset {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .color-preset:hover {
+      transform: scale(1.1);
+    }
+
+    .color-preset.active {
+      border-color: #1a1a1a;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #1a1a1a;
+    }
+
+    /* Position Grid */
+    .position-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 28px);
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .position-cell {
+      background: #e5e7eb;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: #9ca3af;
+      border: none;
+    }
+
+    .position-cell:hover:not(:disabled) {
+      background: #d1d5db;
+    }
+
+    .position-cell.active {
+      background: var(--demo-primary);
+      color: white;
+    }
+
+    .position-cell:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Preview */
+    .demo-preview {
+      background: #f9fafb;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .preview-header h2 {
+      font-size: 1rem;
+      color: #374151;
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-primary {
+      background: var(--demo-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(0.9);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .preview-frame {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      position: relative;
+      min-height: 400px;
+    }
+
+    .preview-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      gap: 0.75rem;
+    }
+
+    .preview-placeholder svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.5;
+    }
+
+    /* Code */
+    .code-section {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .code-header span {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .copy-btn.copied {
+      background: #22c55e;
+    }
+
+    .code-content {
+      padding: 0.75rem;
+      background: #0d0d0d;
+      overflow-x: auto;
+      max-height: 200px;
+    }
+
+    .code-content pre {
+      margin: 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    .code-content .comment { color: #676e95; }
+    .code-content .property { color: #82aaff; }
+    .code-content .string { color: #c3e88d; }
+    .code-content .boolean { color: #ff9cac; }
+  </style>
+</head>
+<body>
+  <header class="demo-header">
+    <a href="index.html" class="back-link">&larr; Retour</a>
+    <h1>Configurateur CookieCraft</h1>
+    <p>Personnalisez votre banniere de consentement</p>
+  </header>
+
+  <div class="demo-layout">
+    <aside class="demo-sidebar">
+      <!-- 1. Layout -->
+      <div class="config-section">
+        <h3><span class="step">1</span> Layout</h3>
+        <div class="select-buttons" id="layoutButtons">
+          <button class="select-btn active" data-value="bar">Barre</button>
+          <button class="select-btn" data-value="box">Boite</button>
+        </div>
+      </div>
+
+      <!-- 2. Banner Position -->
+      <div class="config-section">
+        <h3><span class="step">2</span> Position banniere</h3>
+        <div class="position-grid" id="positionGrid">
+          <button class="position-cell" data-value="top-left" disabled>&#8598;</button>
+          <button class="position-cell" data-value="top">Haut</button>
+          <button class="position-cell" data-value="top-right" disabled>&#8599;</button>
+          <button class="position-cell" data-value="bottom-left">&#8601;</button>
+          <button class="position-cell" data-value="center">Centre</button>
+          <button class="position-cell" data-value="bottom-right">&#8600;</button>
+          <button class="position-cell" data-value="x1" disabled></button>
+          <button class="position-cell active" data-value="bottom">Bas</button>
+          <button class="position-cell" data-value="x2" disabled></button>
+        </div>
+        <p style="font-size: 0.65rem; color: #9ca3af; margin-top: 0.5rem;" id="positionHint">
+          Barre : haut ou bas uniquement
+        </p>
+      </div>
+
+      <!-- 3. Theme -->
+      <div class="config-section">
+        <h3><span class="step">3</span> Theme</h3>
+        <div class="select-buttons" id="themeButtons">
+          <button class="select-btn active" data-value="light">Clair</button>
+          <button class="select-btn" data-value="dark">Sombre</button>
+        </div>
+      </div>
+
+      <!-- 4. Color -->
+      <div class="config-section">
+        <h3><span class="step">4</span> Couleur principale</h3>
+        <div class="color-section">
+          <div class="color-picker-box">
+            <input type="color" class="color-input" id="primaryColor" value="#667eea">
+            <span class="color-hex" id="colorHex">#667eea</span>
+          </div>
+          <div class="color-presets" id="colorPresets">
+            <button class="color-preset active" style="background: #667eea" data-color="#667eea"></button>
+            <button class="color-preset" style="background: #10b981" data-color="#10b981"></button>
+            <button class="color-preset" style="background: #f59e0b" data-color="#f59e0b"></button>
+            <button class="color-preset" style="background: #ef4444" data-color="#ef4444"></button>
+            <button class="color-preset" style="background: #8b5cf6" data-color="#8b5cf6"></button>
+            <button class="color-preset" style="background: #06b6d4" data-color="#06b6d4"></button>
+            <button class="color-preset" style="background: #ec4899" data-color="#ec4899"></button>
+            <button class="color-preset" style="background: #1a1a1a" data-color="#1a1a1a"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Modal Position -->
+      <div class="config-section">
+        <h3><span class="step">5</span> Position modal preferences</h3>
+        <div class="select-buttons" id="prefsPositionButtons">
+          <button class="select-btn" data-value="top-left">&#8598; Haut G</button>
+          <button class="select-btn" data-value="top-right">Haut D &#8599;</button>
+          <button class="select-btn active" data-value="center">Centre</button>
+          <button class="select-btn" data-value="bottom-left">&#8601; Bas G</button>
+          <button class="select-btn" data-value="bottom-right">Bas D &#8600;</button>
+        </div>
+      </div>
+
+      <!-- 6. Widget Position -->
+      <div class="config-section">
+        <h3><span class="step">6</span> Position widget</h3>
+        <div class="select-buttons" id="widgetPositionButtons">
+          <button class="select-btn" data-value="top-left">&#8598; Haut G</button>
+          <button class="select-btn" data-value="top-right">Haut D &#8599;</button>
+          <button class="select-btn" data-value="bottom-left">&#8601; Bas G</button>
+          <button class="select-btn active" data-value="bottom-right">Bas D &#8600;</button>
+        </div>
+      </div>
+
+      <!-- 7. Widget Style -->
+      <div class="config-section">
+        <h3><span class="step">7</span> Style widget</h3>
+        <div class="select-buttons" id="widgetStyleButtons">
+          <button class="select-btn active" data-value="full">Icone + Texte</button>
+          <button class="select-btn" data-value="compact">Icone seule</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="demo-preview">
+      <div class="preview-header">
+        <h2>Apercu</h2>
+        <div class="preview-actions">
+          <button class="btn btn-secondary" id="resetBtn">Reset</button>
+          <button class="btn btn-primary" id="showBannerBtn">Afficher banniere</button>
+          <button class="btn btn-secondary" id="showPrefsBtn">Modal preferences</button>
+        </div>
+      </div>
+
+      <div class="preview-frame" id="previewFrame">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18"/>
+          </svg>
+          <span style="font-size: 0.875rem;">Cliquez sur "Afficher banniere"</span>
+        </div>
+      </div>
+
+      <div class="code-section">
+        <div class="code-header">
+          <span>Configuration</span>
+          <button class="copy-btn" id="copyBtn">Copier</button>
+        </div>
+        <div class="code-content">
+          <pre id="codeOutput"></pre>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/Fz3dev/cookiecraft@main/dist/cookiecraft.min.js"></script>
+  <script>
+    // Config state
+    const config = {
+      layout: 'bar',
+      position: 'bottom',
+      theme: 'light',
+      primaryColor: '#667eea',
+      preferencesPosition: 'center',
+      widgetPosition: 'bottom-right',
+      widgetStyle: 'full'
+    };
+
+    let cookieConsent = null;
+
+    // Position rules based on layout
+    const positionRules = {
+      bar: ['top', 'bottom'],
+      box: ['top', 'bottom', 'center', 'bottom-left', 'bottom-right']
+    };
+
+    // Get allowed positions for current layout
+    function getAllowedPositions() {
+      return positionRules[config.layout] || ['bottom'];
+    }
+
+    // Validate and fix position if needed
+    function validatePosition() {
+      const allowed = getAllowedPositions();
+      if (!allowed.includes(config.position)) {
+        config.position = 'bottom';
+      }
+    }
+
+    // Update position grid based on layout
+    function updatePositionGrid() {
+      validatePosition();
+
+      const allowedPositions = getAllowedPositions();
+      const grid = document.getElementById('positionGrid');
+      const hint = document.getElementById('positionHint');
+
+      const positionMap = {
+        'top': 'top',
+        'bottom': 'bottom',
+        'center': 'center',
+        'bottom-left': 'bottom-left',
+        'bottom-right': 'bottom-right'
+      };
+
+      grid.querySelectorAll('.position-cell').forEach(cell => {
+        const cellValue = cell.dataset.value;
+        const configValue = positionMap[cellValue];
+        const isAllowed = configValue && allowedPositions.includes(configValue);
+
+        cell.disabled = !isAllowed;
+        cell.style.opacity = isAllowed ? '1' : '0.3';
+        cell.style.cursor = isAllowed ? 'pointer' : 'not-allowed';
+        cell.classList.toggle('active', configValue === config.position);
+      });
+
+      hint.textContent = config.layout === 'bar'
+        ? 'Barre : haut ou bas uniquement'
+        : 'Boite : toutes positions disponibles';
+    }
+
+    // Initialize CookieCraft
+    function initCookieCraft() {
+      if (cookieConsent) {
+        cookieConsent.destroy();
+      }
+
+      localStorage.removeItem('cookiecraft_consent');
+
+      cookieConsent = new CookieCraft.CookieConsent({
+        mode: 'opt-in',
+        autoShow: false,
+        revision: 1,
+        categories: {
+          necessary: { enabled: true, readOnly: true, label: 'Essentiels', description: 'Necessaires au fonctionnement' },
+          analytics: { enabled: false, readOnly: false, label: 'Statistiques', description: 'Analyse d\'audience' },
+          marketing: { enabled: false, readOnly: false, label: 'Marketing', description: 'Publicite ciblee' }
+        },
+        layout: config.layout,
+        position: config.position,
+        theme: config.theme,
+        primaryColor: config.primaryColor,
+        preferencesPosition: config.preferencesPosition,
+        showWidget: true,
+        widgetPosition: config.widgetPosition,
+        widgetStyle: config.widgetStyle,
+        translations: {
+          title: 'Cookies et confidentialite',
+          description: 'Nous utilisons des cookies pour ameliorer votre experience.',
+          preferencesTitle: 'Gerer mes cookies',
+          privacyPolicyUrl: '#',
+          privacyPolicyLabel: 'Politique de confidentialite'
+        }
+      });
+
+      cookieConsent.init();
+    }
+
+    // Update code output
+    function updateCodeOutput() {
+      document.getElementById('codeOutput').innerHTML = `<span class="comment">// CookieCraft Configuration</span>
+{
+  <span class="property">layout</span>: <span class="string">'${config.layout}'</span>,
+  <span class="property">position</span>: <span class="string">'${config.position}'</span>,
+  <span class="property">theme</span>: <span class="string">'${config.theme}'</span>,
+  <span class="property">primaryColor</span>: <span class="string">'${config.primaryColor}'</span>,
+  <span class="property">preferencesPosition</span>: <span class="string">'${config.preferencesPosition}'</span>,
+  <span class="property">widgetPosition</span>: <span class="string">'${config.widgetPosition}'</span>,
+  <span class="property">widgetStyle</span>: <span class="string">'${config.widgetStyle}'</span>,
+  <span class="property">showWidget</span>: <span class="boolean">true</span>
+}`;
+    }
+
+    // Setup button groups
+    function setupButtonGroup(containerId, configKey) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      container.querySelectorAll('.select-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          config[configKey] = btn.dataset.value;
+          updateCodeOutput();
+          initCookieCraft();
+        });
+      });
+    }
+
+    // Layout buttons - special handler
+    document.getElementById('layoutButtons').querySelectorAll('.select-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#layoutButtons .select-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        config.layout = btn.dataset.value;
+        validatePosition();
+        updatePositionGrid();
+        updateCodeOutput();
+        initCookieCraft();
+      });
+    });
+
+    setupButtonGroup('themeButtons', 'theme');
+    setupButtonGroup('prefsPositionButtons', 'preferencesPosition');
+    setupButtonGroup('widgetPositionButtons', 'widgetPosition');
+    setupButtonGroup('widgetStyleButtons', 'widgetStyle');
+
+    // Position grid
+    document.getElementById('positionGrid').addEventListener('click', (e) => {
+      const cell = e.target.closest('.position-cell');
+      if (!cell || cell.disabled) return;
+
+      const positionMap = {
+        'top': 'top',
+        'bottom': 'bottom',
+        'center': 'center',
+        'bottom-left': 'bottom-left',
+        'bottom-right': 'bottom-right'
+      };
+
+      const newPosition = positionMap[cell.dataset.value];
+      if (newPosition && getAllowedPositions().includes(newPosition)) {
+        config.position = newPosition;
+        updatePositionGrid();
+        updateCodeOutput();
+        initCookieCraft();
+      }
+    });
+
+    // Color picker
+    const colorInput = document.getElementById('primaryColor');
+    const colorHex = document.getElementById('colorHex');
+
+    colorInput.addEventListener('input', (e) => {
+      config.primaryColor = e.target.value;
+      colorHex.textContent = e.target.value;
+      document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+      document.documentElement.style.setProperty('--demo-primary', e.target.value);
+      updateCodeOutput();
+      initCookieCraft();
+    });
+
+    // Color presets
+    document.getElementById('colorPresets').addEventListener('click', (e) => {
+      const preset = e.target.closest('.color-preset');
+      if (!preset) return;
+
+      const color = preset.dataset.color;
+      config.primaryColor = color;
+      colorInput.value = color;
+      colorHex.textContent = color;
+      document.querySelectorAll('.color-preset').forEach(p => p.classList.remove('active'));
+      preset.classList.add('active');
+      document.documentElement.style.setProperty('--demo-primary', color);
+      updateCodeOutput();
+      initCookieCraft();
+    });
+
+    // Action buttons
+    document.getElementById('showBannerBtn').addEventListener('click', () => {
+      localStorage.removeItem('cookiecraft_consent');
+      initCookieCraft();
+      cookieConsent.show();
+      document.getElementById('previewPlaceholder').style.display = 'none';
+    });
+
+    document.getElementById('showPrefsBtn').addEventListener('click', () => {
+      if (!cookieConsent) initCookieCraft();
+      cookieConsent.showPreferences();
+      document.getElementById('previewPlaceholder').style.display = 'none';
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      localStorage.removeItem('cookiecraft_consent');
+      if (cookieConsent) {
+        cookieConsent.destroy();
+        cookieConsent = null;
+      }
+      document.getElementById('previewPlaceholder').style.display = 'flex';
+    });
+
+    // Copy button
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const code = document.getElementById('codeOutput').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copie!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copier';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    });
+
+    // Init
+    updatePositionGrid();
+    updateCodeOutput();
+  </script>
+</body>
+</html>

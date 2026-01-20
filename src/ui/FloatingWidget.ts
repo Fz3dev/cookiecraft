@@ -71,10 +71,13 @@ export class FloatingWidget {
     const translations = this.config.translations || {};
     const theme = this.config.theme || 'light';
     const widgetPosition = this.config.widgetPosition || 'bottom-right';
+    const widgetStyle = this.config.widgetStyle || 'full';
+
+    console.log('🍪 Widget config:', { widgetPosition, widgetStyle, configWidgetStyle: this.config.widgetStyle });
 
     const template = `
       <div
-        class="cc-widget cc-widget--${widgetPosition}"
+        class="cc-widget cc-widget--${widgetPosition} cc-widget--${widgetStyle}"
         role="button"
         aria-label="${translations.cookieSettings || 'Paramètres des cookies'}"
         tabindex="0"

@@ -940,9 +940,11 @@
             const translations = this.config.translations || {};
             const theme = this.config.theme || 'light';
             const widgetPosition = this.config.widgetPosition || 'bottom-right';
+            const widgetStyle = this.config.widgetStyle || 'full';
+            console.log('🍪 Widget config:', { widgetPosition, widgetStyle, configWidgetStyle: this.config.widgetStyle });
             const template = `
       <div
-        class="cc-widget cc-widget--${widgetPosition}"
+        class="cc-widget cc-widget--${widgetPosition} cc-widget--${widgetStyle}"
         role="button"
         aria-label="${translations.cookieSettings || 'Paramètres des cookies'}"
         tabindex="0"
@@ -1248,7 +1250,7 @@
          * Validate and set default config values
          */
         validateConfig(config) {
-            return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom', layout: config.layout || 'bar', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-right' });
+            return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom', layout: config.layout || 'bar', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-right', widgetStyle: config.widgetStyle || 'full' });
         }
     }
 
