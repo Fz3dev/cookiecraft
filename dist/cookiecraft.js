@@ -5,75 +5,6 @@
 })(this, (function (exports) { 'use strict';
 
     /**
-     * ConsentManager - Handles consent logic and validation
-     */
-    class ConsentManager {
-        constructor(config) {
-            this.config = config;
-        }
-        /**
-         * Validate consent categories
-         */
-        validateConsent(categories) {
-            // Necessary cookies must always be enabled
-            if (!categories.necessary) {
-                return false;
-            }
-            // Validate against config
-            for (const key of Object.keys(categories)) {
-                if (!(key in this.config.categories)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        /**
-         * Update consent with new categories
-         */
-        updateConsent(categories) {
-            if (!this.validateConsent(categories)) {
-                throw new Error('Invalid consent categories');
-            }
-            this.consent = this.createConsentRecord(categories);
-            return this.consent;
-        }
-        /**
-         * Check if user needs to give consent
-         */
-        needsConsent() {
-            return this.consent === undefined;
-        }
-        /**
-         * Check if stored consent needs update due to policy change
-         */
-        needsUpdate(storedConsent) {
-            // Check if policy version has changed
-            return storedConsent.version < this.config.revision;
-        }
-        /**
-         * Get current consent record
-         */
-        getCurrentConsent() {
-            return this.consent;
-        }
-        /**
-         * Create a new consent record
-         */
-        createConsentRecord(categories) {
-            const now = new Date();
-            const expiryDate = new Date(now);
-            expiryDate.setMonth(expiryDate.getMonth() + 13); // 13 months per GDPR
-            return {
-                version: this.config.revision,
-                timestamp: now.toISOString(),
-                categories: Object.assign({}, categories),
-                userAgent: navigator.userAgent,
-                expiresAt: expiryDate.toISOString(),
-            };
-        }
-    }
-
-    /**
      * StorageManager - Manages localStorage persistence for consent records
      */
     class StorageManager {
@@ -142,14 +73,97 @@
          * Migrate old consent format to new format
          * Returns null if migration fails
          */
-        migrate(oldData) {
-            // Handle migration from older versions
-            // For v1, no migration needed - just return null
+        migrate(data) {
+            if (!data || typeof data !== 'object')
+                return null;
+            const record = data;
+            // Attempt to reconstruct a valid record from partial data
+            if (record.categories && typeof record.categories === 'object') {
+                const now = new Date();
+                const expiryDate = new Date(now);
+                expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
+                return {
+                    version: typeof record.version === 'number' ? record.version : 1,
+                    timestamp: typeof record.timestamp === 'string' ? record.timestamp : now.toISOString(),
+                    categories: record.categories,
+                    userAgent: typeof record.userAgent === 'string' ? record.userAgent : navigator.userAgent,
+                    expiresAt: typeof record.expiresAt === 'string' ? record.expiresAt : expiryDate.toISOString(),
+                };
+            }
             return null;
         }
     }
     StorageManager.STORAGE_KEY = 'cookiecraft_consent';
     StorageManager.EXPIRY_MONTHS = 13;
+
+    /**
+     * ConsentManager - Handles consent logic and validation
+     */
+    class ConsentManager {
+        constructor(config) {
+            this.config = config;
+        }
+        /**
+         * Validate consent categories
+         */
+        validateConsent(categories) {
+            // Necessary cookies must always be enabled
+            if (!categories.necessary) {
+                return false;
+            }
+            // Validate against config
+            for (const key of Object.keys(categories)) {
+                if (!(key in this.config.categories)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        /**
+         * Update consent with new categories
+         */
+        updateConsent(categories) {
+            if (!this.validateConsent(categories)) {
+                throw new Error('Invalid consent categories');
+            }
+            this.consent = this.createConsentRecord(categories);
+            return this.consent;
+        }
+        /**
+         * Check if user needs to give consent
+         */
+        needsConsent() {
+            return this.consent === undefined;
+        }
+        /**
+         * Check if stored consent needs update due to policy change
+         */
+        needsUpdate(storedConsent) {
+            // Check if policy version has changed
+            return storedConsent.version < this.config.revision;
+        }
+        /**
+         * Get current consent record
+         */
+        getCurrentConsent() {
+            return this.consent;
+        }
+        /**
+         * Create a new consent record
+         */
+        createConsentRecord(categories) {
+            const now = new Date();
+            const expiryDate = new Date(now);
+            expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
+            return {
+                version: this.config.revision,
+                timestamp: now.toISOString(),
+                categories: Object.assign({}, categories),
+                userAgent: navigator.userAgent,
+                expiresAt: expiryDate.toISOString(),
+            };
+        }
+    }
 
     /**
      * EventEmitter - Simple pub/sub pattern for internal and external events
@@ -229,6 +243,7 @@
          */
         block() {
             this.currentConsent = null;
+            this.blockedScripts.clear();
             this.blockExistingScripts();
         }
         /**
@@ -237,13 +252,16 @@
         unblock(categories) {
             this.currentConsent = categories;
             // Reactivate blocked scripts based on consent
+            const toRemove = [];
             this.blockedScripts.forEach((script, id) => {
                 const category = this.categoryManager.getCategoryForScript(script);
                 if (category && this.categoryManager.isAllowed(category, categories)) {
                     this.reactivateScript(script);
-                    this.blockedScripts.delete(id);
+                    toRemove.push(id);
                 }
             });
+            // Remove after iteration to avoid modifying map during forEach
+            toRemove.forEach((id) => this.blockedScripts.delete(id));
         }
         /**
          * Destroy the blocker and stop observing
@@ -300,6 +318,9 @@
             // Block the script by changing its type
             if (script.type !== 'text/plain') {
                 const id = this.generateScriptId(script);
+                // Don't re-block scripts we already know about
+                if (this.blockedScripts.has(id))
+                    return;
                 // Store original type if it exists
                 const originalType = script.type || 'text/javascript';
                 script.setAttribute('data-original-type', originalType);
@@ -340,10 +361,36 @@
             });
         }
         /**
-         * Generate unique ID for a script
+         * Generate a stable, deterministic ID for a script element
          */
         generateScriptId(script) {
-            return script.src || `inline-${Date.now()}-${Math.random()}`;
+            // Use src for external scripts (stable across calls)
+            if (script.src) {
+                return `src:${script.src}`;
+            }
+            // For inline scripts, use a hash of the content for stability
+            const content = script.textContent || '';
+            const category = script.getAttribute('data-cookieconsent') || '';
+            // Use existing data-cc-id if present (allows reset/re-block)
+            const existingId = script.getAttribute('data-cc-id');
+            if (existingId)
+                return existingId;
+            // Generate deterministic ID from content + category
+            const id = `inline:${category}:${this.simpleHash(content)}`;
+            script.setAttribute('data-cc-id', id);
+            return id;
+        }
+        /**
+         * Simple hash function for content-based script identification
+         */
+        simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return hash.toString(36);
         }
     }
 
@@ -421,6 +468,57 @@
     }
 
     /**
+     * Sanitization utilities to prevent XSS in HTML templates
+     */
+    const HTML_ESCAPE_MAP = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '`': '&#x60;',
+    };
+    const HTML_ESCAPE_RE = /[&<>"'`]/g;
+    /**
+     * Escape HTML entities in a string to prevent XSS
+     */
+    function escapeHtml(str) {
+        return str.replace(HTML_ESCAPE_RE, (char) => HTML_ESCAPE_MAP[char] || char);
+    }
+    /**
+     * Sanitize a URL - only allow http(s) and relative URLs
+     */
+    function sanitizeUrl(url) {
+        const trimmed = url.trim();
+        if (trimmed.startsWith('https://') ||
+            trimmed.startsWith('http://') ||
+            trimmed.startsWith('/') ||
+            trimmed.startsWith('./')) {
+            return escapeHtml(trimmed);
+        }
+        return '';
+    }
+    /**
+     * Sanitize a CSS color value - only allow valid hex, rgb, hsl, named colors
+     */
+    function sanitizeColor(color) {
+        const trimmed = color.trim();
+        // Allow hex colors
+        if (/^#[0-9a-fA-F]{3,8}$/.test(trimmed))
+            return trimmed;
+        // Allow rgb/rgba
+        if (/^rgba?\(\s*[\d\s,./%]+\)$/.test(trimmed))
+            return trimmed;
+        // Allow hsl/hsla
+        if (/^hsla?\(\s*[\d\s,./%deg]+\)$/.test(trimmed))
+            return trimmed;
+        // Allow CSS named colors (basic set)
+        if (/^[a-zA-Z]+$/.test(trimmed))
+            return trimmed;
+        return '';
+    }
+
+    /**
      * Banner - Cookie consent banner component
      */
     class Banner {
@@ -433,24 +531,32 @@
          * Show the banner
          */
         show() {
-            var _a;
-            if (!this.element) {
-                this.element = this.createDOM();
-                document.body.appendChild(this.element);
-                this.attachListeners();
-            }
-            // Trigger animation
-            requestAnimationFrame(() => {
+            const append = () => {
                 var _a;
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
-            });
-            // Focus first button for accessibility
-            const firstButton = (_a = this.element) === null || _a === void 0 ? void 0 : _a.querySelector('button');
-            firstButton === null || firstButton === void 0 ? void 0 : firstButton.focus();
-            // Disable page interaction if configured
-            if (this.config.disablePageInteraction) {
-                document.body.style.overflow = 'hidden';
+                if (!this.element) {
+                    this.element = this.createDOM();
+                    document.body.appendChild(this.element);
+                    this.attachListeners();
+                }
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    var _a;
+                    (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
+                });
+                // Focus first button for accessibility
+                const firstButton = (_a = this.element) === null || _a === void 0 ? void 0 : _a.querySelector('button');
+                firstButton === null || firstButton === void 0 ? void 0 : firstButton.focus();
+                // Disable page interaction if configured
+                if (this.config.disablePageInteraction) {
+                    document.body.style.overflow = 'hidden';
+                }
+            };
+            // Wait for body if not yet available
+            if (!document.body) {
+                document.addEventListener('DOMContentLoaded', append);
+                return;
             }
+            append();
         }
         /**
          * Hide the banner
@@ -484,19 +590,21 @@
             const position = this.config.position || 'bottom';
             const layout = this.config.layout || 'bar';
             const backdropBlur = this.config.backdropBlur !== false;
+            const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+            const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
             const template = `
       <div
-        class="cc-banner cc-banner--${position} cc-banner--${layout} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
+        class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
         role="region"
         aria-label="Cookie consent"
         aria-live="polite"
-        data-theme="${theme}"
-        style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor};` : ''}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <div class="cc-banner__container">
           <div class="cc-banner__content">
             <h2 class="cc-banner__title">
-              ${translations.title || '🍪 Nous utilisons des cookies'}
+              ${escapeHtml(translations.title || '🍪 Nous utilisons des cookies')}
             </h2>
             <p class="cc-banner__description">
               ${this.getDescriptionHTML()}
@@ -504,25 +612,25 @@
           </div>
           <div class="cc-banner__actions">
             <button
-              class="cc-btn cc-btn--secondary"
-              data-action="reject"
-              aria-label="Rejeter tous les cookies"
-            >
-              ${translations.rejectAll || 'Tout rejeter'}
-            </button>
-            <button
               class="cc-btn cc-btn--tertiary"
               data-action="customize"
-              aria-label="Personnaliser les préférences"
+              aria-label="${escapeHtml(translations.customize || 'Personnaliser')}"
             >
-              ${translations.customize || 'Personnaliser'}
+              ${escapeHtml(translations.customize || 'Personnaliser')}
             </button>
             <button
-              class="cc-btn cc-btn--primary"
-              data-action="accept"
-              aria-label="Accepter tous les cookies"
+              class="cc-btn cc-btn--reject"
+              data-action="reject"
+              aria-label="${escapeHtml(translations.rejectAll || 'Tout refuser')}"
             >
-              ${translations.acceptAll || 'Tout accepter'}
+              ${escapeHtml(translations.rejectAll || 'Tout refuser')}
+            </button>
+            <button
+              class="cc-btn cc-btn--accept"
+              data-action="accept"
+              aria-label="${escapeHtml(translations.acceptAll || 'Tout accepter')}"
+            >
+              ${escapeHtml(translations.acceptAll || 'Tout accepter')}
             </button>
           </div>
         </div>
@@ -538,7 +646,9 @@
         attachListeners() {
             var _a, _b;
             (_a = this.element) === null || _a === void 0 ? void 0 : _a.addEventListener('click', (e) => {
-                const target = e.target;
+                const target = e.target.closest('[data-action]');
+                if (!target)
+                    return;
                 const action = target.getAttribute('data-action');
                 switch (action) {
                     case 'accept':
@@ -609,10 +719,13 @@
         getDescriptionHTML() {
             const translations = this.config.translations || {};
             const defaultDescription = 'Pour améliorer votre expérience sur notre site, nous utilisons des cookies. Vous pouvez choisir les cookies que vous acceptez.';
-            const description = translations.description || defaultDescription;
+            const description = escapeHtml(translations.description || defaultDescription);
             if (translations.privacyPolicyUrl) {
-                const linkLabel = translations.privacyPolicyLabel || 'Politique de confidentialité';
-                return `${description} <a href="${translations.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
+                const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
+                if (safeUrl) {
+                    const linkLabel = escapeHtml(translations.privacyPolicyLabel || 'Politique de confidentialité');
+                    return `${description} <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
+                }
             }
             return description;
         }
@@ -632,15 +745,22 @@
          * Show the preference center
          */
         show() {
-            if (!this.element) {
-                this.element = this.createDOM();
-                document.body.appendChild(this.element);
-                this.attachListeners();
+            const append = () => {
+                if (!this.element) {
+                    this.element = this.createDOM();
+                    document.body.appendChild(this.element);
+                    this.attachListeners();
+                }
+                this.element.classList.add('is-visible');
+                this.trapFocus();
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+            };
+            if (!document.body) {
+                document.addEventListener('DOMContentLoaded', append);
+                return;
             }
-            this.element.classList.add('is-visible');
-            this.trapFocus();
-            // Prevent body scroll
-            document.body.style.overflow = 'hidden';
+            append();
         }
         /**
          * Hide the preference center
@@ -669,19 +789,41 @@
             const translations = this.config.translations || {};
             const theme = this.config.theme || 'light';
             const position = this.config.preferencesPosition || 'center';
+            const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+            const colorStyle = safeColor
+                ? `--cc-primary: ${safeColor}; --cc-primary-hover: ${this.adjustColorBrightness(safeColor, -15)};`
+                : '';
+            const privacyLinkHtml = translations.privacyPolicyUrl
+                ? (() => {
+                    const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
+                    if (!safeUrl)
+                        return '';
+                    return `
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="cc-privacy-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              ${escapeHtml(translations.privacyPolicyLabel || 'Politique de confidentialité')}
+            </a>
+          `;
+                })()
+                : '';
             const template = `
       <div
-        class="cc-modal cc-modal--${position}"
+        class="cc-modal cc-modal--${escapeHtml(position)}"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cc-modal-title"
-        data-theme="${theme}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <div class="cc-modal__overlay" data-action="close"></div>
         <div class="cc-modal__content">
-          <div class="cc-modal__header" style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor}; --cc-primary-hover: ${this.adjustColorBrightness(this.config.primaryColor, -15)};` : ''}">
+          <div class="cc-modal__header">
             <h2 id="cc-modal-title">
-              ${translations.preferencesTitle || translations.title || 'Préférences de cookies'}
+              ${escapeHtml(translations.preferencesTitle || translations.title || 'Préférences de cookies')}
             </h2>
             <button
               class="cc-modal__close"
@@ -700,29 +842,20 @@
 
           <div class="cc-modal__footer">
             <div class="cc-modal__footer-links">
-              ${translations.privacyPolicyUrl ? `
-                <a href="${translations.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer" class="cc-privacy-link">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  ${translations.privacyPolicyLabel || 'Politique de confidentialité'}
-                </a>
-              ` : ''}
+              ${privacyLinkHtml}
             </div>
             <div class="cc-modal__footer-actions">
               <button
                 class="cc-btn cc-btn--secondary"
                 data-action="reject"
               >
-                ${translations.rejectAll || 'Tout rejeter'}
+                ${escapeHtml(translations.essentialsOnly || 'Uniquement les essentiels')}
               </button>
               <button
                 class="cc-btn cc-btn--primary"
                 data-action="save"
               >
-                ${translations.savePreferences || 'Sauvegarder'}
+                ${escapeHtml(translations.savePreferences || 'Enregistrer mes choix')}
               </button>
             </div>
           </div>
@@ -748,16 +881,16 @@
             <label class="cc-toggle ${disabled ? 'cc-toggle--disabled' : ''}">
               <input
                 type="checkbox"
-                data-category="${key}"
+                data-category="${escapeHtml(key)}"
                 ${checked ? 'checked' : ''}
                 ${disabled ? 'disabled' : ''}
-                aria-label="${config.label} cookies"
+                aria-label="${escapeHtml(config.label)} cookies"
               >
               <span class="cc-toggle__slider"></span>
             </label>
             <div class="cc-category__info">
-              <h3>${config.label}</h3>
-              <p>${config.description}</p>
+              <h3>${escapeHtml(config.label)}</h3>
+              <p>${escapeHtml(config.description)}</p>
             </div>
           </div>
         </div>
@@ -771,7 +904,9 @@
         attachListeners() {
             var _a, _b;
             (_a = this.element) === null || _a === void 0 ? void 0 : _a.addEventListener('click', (e) => {
-                const target = e.target;
+                const target = e.target.closest('[data-action]');
+                if (!target)
+                    return;
                 const action = target.getAttribute('data-action');
                 if (action === 'close') {
                     this.hide();
@@ -894,20 +1029,24 @@
          * Show the floating widget
          */
         show() {
-            console.log('🎯 FloatingWidget.show() called');
-            if (!this.element) {
-                this.element = this.createDOM();
-                document.body.appendChild(this.element);
-                this.attachListeners();
-                console.log('✅ Widget element created and appended to body');
+            const append = () => {
+                if (!this.element) {
+                    this.element = this.createDOM();
+                    document.body.appendChild(this.element);
+                    this.attachListeners();
+                }
+                // Delay to allow for transition
+                requestAnimationFrame(() => {
+                    var _a;
+                    (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
+                    this.isVisible = true;
+                });
+            };
+            if (!document.body) {
+                document.addEventListener('DOMContentLoaded', append);
+                return;
             }
-            // Delay to allow for transition
-            requestAnimationFrame(() => {
-                var _a;
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
-                this.isVisible = true;
-                console.log('✅ Widget is-visible class added');
-            });
+            append();
         }
         /**
          * Hide the floating widget
@@ -941,15 +1080,16 @@
             const theme = this.config.theme || 'light';
             const widgetPosition = this.config.widgetPosition || 'bottom-right';
             const widgetStyle = this.config.widgetStyle || 'full';
-            console.log('🍪 Widget config:', { widgetPosition, widgetStyle, configWidgetStyle: this.config.widgetStyle });
+            const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+            const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
             const template = `
       <div
-        class="cc-widget cc-widget--${widgetPosition} cc-widget--${widgetStyle}"
+        class="cc-widget cc-widget--${escapeHtml(widgetPosition)} cc-widget--${escapeHtml(widgetStyle)}"
         role="button"
-        aria-label="${translations.cookieSettings || 'Paramètres des cookies'}"
+        aria-label="${escapeHtml(translations.cookieSettings || 'Paramètres des cookies')}"
         tabindex="0"
-        data-theme="${theme}"
-        style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor};` : ''}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <svg class="cc-widget__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
@@ -960,7 +1100,7 @@
           <circle cx="17" cy="17" r="1.5"/>
         </svg>
         <span class="cc-widget__text">
-          ${translations.cookies || 'Cookies'}
+          ${escapeHtml(translations.cookies || 'Cookies')}
         </span>
       </div>
     `;
@@ -992,17 +1132,25 @@
     }
 
     /**
-     * GTMConsentMode - Integration with Google Consent Mode v2
+     * GTMConsentMode - Full integration with Google Consent Mode v2
+     *
+     * Implements all required signals:
+     * - ad_storage, ad_user_data, ad_personalization, analytics_storage (core GCM v2)
+     * - functionality_storage, personalization_storage, security_storage (non-core)
+     * - wait_for_update, url_passthrough, ads_data_redaction (advanced features)
      */
     class GTMConsentMode {
-        constructor(dataLayerManager) {
+        constructor(dataLayerManager, config) {
             this.dataLayerManager = dataLayerManager;
+            this.config = config;
         }
         /**
          * Set default consent state (MUST be called BEFORE GTM loads)
+         * All non-essential consent types default to 'denied' per GDPR
          */
         setDefaultConsent() {
-            this.dataLayerManager.push('consent', 'default', {
+            var _a;
+            const defaults = {
                 ad_storage: 'denied',
                 ad_user_data: 'denied',
                 ad_personalization: 'denied',
@@ -1010,14 +1158,28 @@
                 functionality_storage: 'denied',
                 personalization_storage: 'denied',
                 security_storage: 'granted', // Always granted
-            });
+            };
+            // Add wait_for_update to give CMP time to restore returning visitor consent
+            const waitForUpdate = (_a = this.config.gtmWaitForUpdate) !== null && _a !== void 0 ? _a : 500;
+            if (waitForUpdate > 0) {
+                defaults['wait_for_update'] = waitForUpdate;
+            }
+            this.dataLayerManager.pushConsent('default', defaults);
+            // Set advanced features via gtag('set', ...)
+            if (this.config.gtmUrlPassthrough) {
+                this.dataLayerManager.pushSet('url_passthrough', true);
+            }
+            if (this.config.gtmAdsDataRedaction) {
+                this.dataLayerManager.pushSet('ads_data_redaction', true);
+            }
         }
         /**
          * Update consent state based on user choices
+         * Called both on new consent and on page load for returning visitors
          */
         updateConsent(categories) {
             const gtmConsent = this.mapCategoriesToGTM(categories);
-            this.dataLayerManager.push('consent', 'update', gtmConsent);
+            this.dataLayerManager.pushConsent('update', gtmConsent);
         }
         /**
          * Map consent categories to GTM Consent Mode v2 format
@@ -1037,24 +1199,131 @@
 
     /**
      * DataLayerManager - Manages Google Tag Manager dataLayer communication
+     * Implements Google Consent Mode v2 correctly via gtag() API
      */
     class DataLayerManager {
         /**
-         * Push data to GTM dataLayer
+         * Initialize gtag function if not already present
+         * This must be called before GTM loads for consent defaults to work
          */
-        push(command, action, params) {
-            // Initialize dataLayer if it doesn't exist
+        ensureGtag() {
             window.dataLayer = window.dataLayer || [];
-            // Push to dataLayer
-            window.dataLayer.push({
-                event: 'consent_update',
-                [command]: {
-                    [action]: params,
-                },
-            });
-            // Also push using gtag format if available
-            if (typeof window.gtag === 'function') {
-                window.gtag(command, action, params);
+            if (typeof window.gtag !== 'function') {
+                window.gtag = function () {
+                    window.dataLayer.push(arguments);
+                };
+            }
+        }
+        /**
+         * Push consent command via gtag (correct format for Google Consent Mode v2)
+         * Usage: pushConsent('default', {...}) or pushConsent('update', {...})
+         */
+        pushConsent(action, params) {
+            this.ensureGtag();
+            window.gtag('consent', action, params);
+        }
+        /**
+         * Push a 'set' command via gtag for advanced features
+         * Usage: pushSet('url_passthrough', true) or pushSet('ads_data_redaction', true)
+         */
+        pushSet(key, value) {
+            this.ensureGtag();
+            window.gtag('set', key, value);
+        }
+    }
+
+    /**
+     * Cookie utilities for clearing non-essential cookies on rejection/withdrawal
+     */
+    /** Known analytics cookie name patterns */
+    const ANALYTICS_COOKIE_PATTERNS = [
+        /^_ga/, // Google Analytics
+        /^_gid/, // Google Analytics
+        /^_gat/, // Google Analytics
+        /^_gcl/, // Google Ads conversion linker
+        /^_hj/, // Hotjar
+        /^_pk_/, // Matomo/Piwik
+        /^mp_/, // Mixpanel
+        /^ajs_/, // Segment
+        /^amplitude/, // Amplitude
+        /^plausible/, // Plausible
+    ];
+    /** Known marketing cookie name patterns */
+    const MARKETING_COOKIE_PATTERNS = [
+        /^_fbp/, // Facebook Pixel
+        /^_fbc/, // Facebook click
+        /^fr$/, // Facebook
+        /^_pin_/, // Pinterest
+        /^_tt_/, // TikTok
+        /^li_/, // LinkedIn
+        /^_uet/, // Microsoft/Bing Ads
+        /^IDE$/, // DoubleClick
+        /^test_cookie/, // DoubleClick
+        /^MUID$/, // Microsoft
+        /^NID$/, // Google Ads
+    ];
+    /** Known preferences cookie name patterns */
+    const PREFERENCES_COOKIE_PATTERNS = [
+        /^lang$/,
+        /^locale$/,
+        /^i18n/,
+    ];
+    const CATEGORY_PATTERNS = {
+        analytics: ANALYTICS_COOKIE_PATTERNS,
+        marketing: MARKETING_COOKIE_PATTERNS,
+        preferences: PREFERENCES_COOKIE_PATTERNS,
+    };
+    /**
+     * Get all cookies as name/value pairs
+     */
+    function getAllCookies() {
+        return document.cookie.split(';').map(c => c.trim().split('=')[0]).filter(Boolean);
+    }
+    /**
+     * Delete a cookie by name, trying all common path/domain combinations
+     */
+    function deleteCookie(name) {
+        const hostname = window.location.hostname;
+        const paths = ['/', window.location.pathname];
+        // Build domain variants: current domain + parent domains
+        const domains = ['', hostname];
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+            // Add parent domain (e.g., .example.com for sub.example.com)
+            domains.push('.' + parts.slice(-2).join('.'));
+        }
+        domains.push('.' + hostname);
+        for (const domain of domains) {
+            for (const path of paths) {
+                const domainPart = domain ? `; domain=${domain}` : '';
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domainPart}`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domainPart}; secure`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domainPart}; samesite=lax`;
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domainPart}; samesite=none; secure`;
+            }
+        }
+    }
+    /**
+     * Clear cookies matching patterns for denied categories
+     */
+    function clearCookiesForCategory(category) {
+        const patterns = CATEGORY_PATTERNS[category];
+        if (!patterns)
+            return;
+        const cookies = getAllCookies();
+        for (const name of cookies) {
+            if (patterns.some(pattern => pattern.test(name))) {
+                deleteCookie(name);
+            }
+        }
+    }
+    /**
+     * Clear all non-essential cookies based on consent categories
+     */
+    function clearDeniedCookies(categories) {
+        for (const [category, allowed] of Object.entries(categories)) {
+            if (!allowed && category !== 'necessary') {
+                clearCookiesForCategory(category);
             }
         }
     }
@@ -1074,7 +1343,7 @@
             this.eventEmitter = new EventEmitter();
             this.scriptBlocker = new ScriptBlocker(new CategoryManager(), this.eventEmitter);
             if (this.config.gtmConsentMode) {
-                this.gtmIntegration = new GTMConsentMode(new DataLayerManager());
+                this.gtmIntegration = new GTMConsentMode(new DataLayerManager(), this.config);
             }
             // Listen for preference center requests
             this.eventEmitter.on('preferences:show', () => {
@@ -1114,6 +1383,10 @@
                 else {
                     // Apply stored consent
                     this.applyConsent(storedConsent.categories);
+                    // Restore GTM consent for returning visitors (within wait_for_update window)
+                    if (this.gtmIntegration) {
+                        this.gtmIntegration.updateConsent(storedConsent.categories);
+                    }
                     this.eventEmitter.emit('consent:load', storedConsent);
                     // Show floating widget if enabled
                     if (this.config.showWidget) {
@@ -1147,11 +1420,13 @@
          */
         showPreferences() {
             var _a;
-            const currentConsent = ((_a = this.storageManager.load()) === null || _a === void 0 ? void 0 : _a.categories) || {
+            const stored = (_a = this.storageManager.load()) === null || _a === void 0 ? void 0 : _a.categories;
+            // Default to all ON when no prior consent (user chose to customize)
+            const currentConsent = stored || {
                 necessary: true,
-                analytics: false,
-                marketing: false,
-                preferences: false,
+                analytics: true,
+                marketing: true,
+                preferences: true,
             };
             // Always recreate to get fresh state from storage
             if (this.preferenceCenter) {
@@ -1172,14 +1447,9 @@
             }
             // Show floating widget after consent is given (delay to let banner hide)
             if (this.config.showWidget) {
-                console.log('⏳ Widget will show in 400ms...');
                 setTimeout(() => {
-                    console.log('🚀 Calling showFloatingWidget()');
                     this.showFloatingWidget();
                 }, 400); // Wait for banner hide animation
-            }
-            else {
-                console.log('❌ Widget disabled in config');
             }
         }
         /**
@@ -1194,6 +1464,12 @@
         reset() {
             this.storageManager.clear();
             this.scriptBlocker.block();
+            // Clear all non-essential cookies on reset
+            clearDeniedCookies({ necessary: true, analytics: false, marketing: false, preferences: false });
+            // Update GTM to denied state
+            if (this.gtmIntegration) {
+                this.gtmIntegration.updateConsent({ necessary: true, analytics: false, marketing: false });
+            }
             this.showBanner();
         }
         /**
@@ -1241,10 +1517,12 @@
             this.floatingWidget.show();
         }
         /**
-         * Apply consent by unblocking scripts
+         * Apply consent by unblocking allowed scripts and clearing denied cookies
          */
         applyConsent(categories) {
             this.scriptBlocker.unblock(categories);
+            // CNIL/GDPR: actively delete cookies for denied categories
+            clearDeniedCookies(categories);
         }
         /**
          * Validate and set default config values
@@ -1255,9 +1533,6 @@
     }
 
     exports.CookieConsent = CookieConsent;
-    exports.default = CookieConsent;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
 //# sourceMappingURL=cookiecraft.js.map

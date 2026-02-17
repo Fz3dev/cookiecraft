@@ -44,7 +44,11 @@ export declare class ScriptBlocker {
      */
     private reactivateScript;
     /**
-     * Generate unique ID for a script
+     * Generate a stable, deterministic ID for a script element
      */
     private generateScriptId;
+    /**
+     * Simple hash function for content-based script identification
+     */
+    private simpleHash;
 }

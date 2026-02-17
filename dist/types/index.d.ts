@@ -4,4 +4,3 @@
  */
 export { CookieConsent } from './core/CookieConsent';
 export type { ConsentConfig, ConsentCategories, CategoryConfig, ConsentRecord, Translation, GTMConsent, ConsentEvent, } from './types';
-export { CookieConsent as default } from './core/CookieConsent';

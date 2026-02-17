@@ -66,7 +66,7 @@ export declare class CookieConsent {
      */
     private showFloatingWidget;
     /**
-     * Apply consent by unblocking scripts
+     * Apply consent by unblocking allowed scripts and clearing denied cookies
      */
     private applyConsent;
     /**

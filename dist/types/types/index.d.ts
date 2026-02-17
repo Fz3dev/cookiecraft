@@ -18,6 +18,7 @@ export interface Translation {
     description?: string;
     acceptAll?: string;
     rejectAll?: string;
+    essentialsOnly?: string;
     customize?: string;
     savePreferences?: string;
     necessary?: string;
@@ -53,6 +54,9 @@ export interface ConsentConfig {
     language?: string;
     translations?: Translation;
     gtmConsentMode?: boolean;
+    gtmWaitForUpdate?: number;
+    gtmUrlPassthrough?: boolean;
+    gtmAdsDataRedaction?: boolean;
     cookieDomain?: string;
     disablePageInteraction?: boolean;
     onAccept?: (categories: ConsentCategories) => void;
@@ -67,6 +71,7 @@ export interface ConsentRecord {
     expiresAt: string;
 }
 export interface GTMConsent {
+    [key: string]: 'granted' | 'denied';
     ad_storage: 'granted' | 'denied';
     ad_user_data: 'granted' | 'denied';
     ad_personalization: 'granted' | 'denied';

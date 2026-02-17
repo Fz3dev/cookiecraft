@@ -4,7 +4,7 @@
 import { ConsentRecord } from '../types';
 export declare class StorageManager {
     private static readonly STORAGE_KEY;
-    private static readonly EXPIRY_MONTHS;
+    static readonly EXPIRY_MONTHS = 13;
     /**
      * Save consent record to localStorage
      */
