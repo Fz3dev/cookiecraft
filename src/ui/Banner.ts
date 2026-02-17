@@ -33,9 +33,6 @@ export class Banner {
         this.element?.classList.add('is-visible');
       });
 
-      // Focus first button for accessibility
-      const firstButton = this.element?.querySelector('button');
-      firstButton?.focus();
 
       // Disable page interaction if configured
       if (this.config.disablePageInteraction) {
@@ -111,18 +108,18 @@ export class Banner {
           </div>
           <div class="cc-banner__actions">
             <button
+              class="cc-btn cc-btn--ghost"
+              data-action="reject"
+              aria-label="${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}"
+            >
+              ${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}
+            </button>
+            <button
               class="cc-btn cc-btn--tertiary"
               data-action="customize"
               aria-label="${escapeHtml(translations.customize || 'Personnaliser')}"
             >
               ${escapeHtml(translations.customize || 'Personnaliser')}
-            </button>
-            <button
-              class="cc-btn cc-btn--reject"
-              data-action="reject"
-              aria-label="${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}"
-            >
-              ${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}
             </button>
             <button
               class="cc-btn cc-btn--accept"

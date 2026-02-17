@@ -10,7 +10,7 @@
   <style>
     :root {
       --primary: #1a1a1a;
-      --primary-hover: #5568d3;
+      --primary-hover: #333333;
       --gray-50: #fafbfc;
       --gray-100: #f3f4f6;
       --gray-200: #e5e7eb;
@@ -51,7 +51,7 @@
     }
 
     *:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: 2px solid var(--gray-900);
       outline-offset: 2px;
     }
 
@@ -101,8 +101,8 @@
     }
 
     .topbar__badge {
-      background: #f0f0ff;
-      color: var(--primary);
+      background: var(--gray-100);
+      color: var(--gray-600);
       padding: 3px 10px;
       border-radius: var(--radius-pill);
       font-size: 0.68rem;
@@ -126,8 +126,8 @@
       flex-shrink: 0;
     }
     .topbar__cta:hover {
-      background: var(--primary-hover);
-      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+      background: var(--gray-800);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
     .topbar__cta.copied { background: #22c55e; }
     .topbar__cta svg { width: 15px; height: 15px; }
@@ -252,7 +252,7 @@
     .input:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
     }
     textarea.input {
       resize: vertical;
@@ -309,7 +309,7 @@
     .color-hex:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
     }
 
     .color-presets {
@@ -354,16 +354,15 @@
       user-select: none;
     }
     .chip:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: rgba(102,126,234,0.04);
+      border-color: var(--gray-900);
+      color: var(--gray-900);
+      background: var(--gray-50);
     }
     .chip:active { transform: scale(0.96); }
     .chip.active {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--gray-900);
+      border-color: var(--gray-900);
       color: white;
-      box-shadow: 0 2px 8px rgba(102,126,234,0.25);
     }
 
     /* ── Toggle ──────────────────────────────── */
@@ -396,8 +395,7 @@
       transition: background 0.2s, box-shadow 0.2s;
     }
     .toggle input:checked + .toggle-track {
-      background: var(--primary);
-      box-shadow: 0 0 12px rgba(102,126,234,0.3);
+      background: var(--gray-900);
     }
 
     .toggle-thumb {
@@ -448,19 +446,19 @@
       color: var(--gray-600);
     }
     .preview-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: rgba(102,126,234,0.04);
+      border-color: var(--gray-900);
+      color: var(--gray-900);
+      background: var(--gray-50);
     }
     .preview-btn:active { transform: scale(0.96); }
     .preview-btn--primary {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--gray-900);
+      border-color: var(--gray-900);
       color: white;
     }
     .preview-btn--primary:hover {
-      background: var(--primary-hover);
-      border-color: var(--primary-hover);
+      background: var(--gray-800);
+      border-color: var(--gray-800);
     }
 
     /* ── Code block (terminal) ───────────────── */
@@ -591,8 +589,8 @@
       transition: all 0.2s;
     }
     .copy-cta:hover {
-      background: var(--primary-hover);
-      box-shadow: 0 4px 16px rgba(102,126,234,0.35);
+      background: var(--gray-800);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
     .copy-cta:active { transform: scale(0.98); }
     .copy-cta.copied { background: #22c55e; }
@@ -747,10 +745,10 @@
           <div class="field">
             <span class="field__label">Layout</span>
             <div class="chip-group" data-key="layout">
-              <button class="chip active" data-v="bar">
+              <button class="chip" data-v="bar">
                 Barre
               </button>
-              <button class="chip" data-v="box">
+              <button class="chip active" data-v="box">
                 Boite
               </button>
             </div>
@@ -759,9 +757,9 @@
             <span class="field__label">Position</span>
             <div class="chip-group" data-key="position"
               id="positionChips">
-              <button class="chip" data-v="top">Haut</button>
-              <button class="chip active" data-v="bottom">
-                Bas
+              <button class="chip active" data-v="bottom-left">Gauche</button>
+              <button class="chip" data-v="bottom-right">
+                Droite
               </button>
             </div>
           </div>
@@ -839,7 +837,7 @@
                 GTM Consent Mode v2
               </span>
               <label class="toggle">
-                <input type="checkbox" id="cfgGtm">
+                <input type="checkbox" id="cfgGtm" checked>
                 <span class="toggle-track"></span>
                 <span class="toggle-thumb"></span>
               </label>
@@ -933,26 +931,26 @@
   (function() {
     // ── Defaults ─────────────────────────────────
     var DEFAULTS = {
-      layout: 'bar',
-      position: 'bottom',
+      layout: 'box',
+      position: 'bottom-left',
       theme: 'light',
       primaryColor: '#1a1a1a',
       showWidget: true,
       widgetPosition: 'bottom-left',
       widgetStyle: 'compact',
-      gtmConsentMode: false
+      gtmConsentMode: true
     };
 
     // ── State ────────────────────────────────────
     var cfg = {
-      layout: 'bar',
-      position: 'bottom',
+      layout: 'box',
+      position: 'bottom-left',
       theme: 'light',
       primaryColor: '#1a1a1a',
       showWidget: true,
       widgetPosition: 'bottom-left',
       widgetStyle: 'compact',
-      gtmConsentMode: false,
+      gtmConsentMode: true,
       title: 'Nous utilisons des cookies',
       description:
         'Ce site utilise des cookies pour ameliorer'
@@ -1098,8 +1096,6 @@
       cfg.primaryColor = hex;
       $color.value = hex;
       $colorHex.value = hex;
-      document.documentElement.style
-        .setProperty('--primary', hex);
       updateColorBar();
       var presets = document.querySelectorAll('.color-preset');
       for (var i = 0; i < presets.length; i++) {
@@ -1206,152 +1202,60 @@
     var CDN = 'https://cdn.jsdelivr.net/npm/';
     var PKG = 'cookiecraft@1/dist/';
 
+    function esc(s) {
+      return s.replace(/'/g, "\\'");
+    }
+
     function generateCode() {
+      var URL = CDN + PKG;
       var L = [];
 
-      // Block 1: CSS loader
-      L.push('&lt;script&gt;');
-      L.push("var h=document.createElement('link');");
-      L.push("h.rel='stylesheet';");
-      L.push("h.href='" + CDN + "'+");
-      L.push("  '" + PKG + "cookiecraft.css';");
-      L.push('document.head.appendChild(h);');
-      L.push('&lt;/script&gt;');
+      // CSS + JS loading
+      L.push('<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span>');
+      L.push('  <span class="attr">href</span>=<span class="str">"' + URL + 'cookiecraft.css"</span><span class="tag">&gt;</span>');
+      L.push('<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"' + URL + 'cookiecraft.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span>');
       L.push('');
 
-      // Block 2: JS (single-line src tag)
-      L.push(
-        '&lt;script src="' + CDN + PKG
-        + 'cookiecraft.min.js"&gt;'
-        + '&lt;/script&gt;'
-      );
-      L.push('');
+      // Init script
+      L.push('<span class="tag">&lt;script&gt;</span>');
+      L.push('new CookieCraft.CookieConsent({');
 
-      // Block 3: Init
-      L.push('&lt;script&gt;');
-      L.push('var o={};');
-      L.push("o.mode='opt-in';");
-
-      // Non-default options only
+      // Non-default options
+      var opts = [];
       if (cfg.layout !== DEFAULTS.layout)
-        L.push("o.layout='" + cfg.layout + "';");
+        opts.push("  <span class=\"prop\">layout</span>: <span class=\"str\">'" + cfg.layout + "'</span>");
       if (cfg.position !== DEFAULTS.position)
-        L.push("o.position='" + cfg.position + "';");
+        opts.push("  <span class=\"prop\">position</span>: <span class=\"str\">'" + cfg.position + "'</span>");
       if (cfg.theme !== DEFAULTS.theme)
-        L.push("o.theme='" + cfg.theme + "';");
+        opts.push("  <span class=\"prop\">theme</span>: <span class=\"str\">'" + cfg.theme + "'</span>");
       if (cfg.primaryColor !== DEFAULTS.primaryColor)
-        L.push("o.primaryColor='"
-          + cfg.primaryColor + "';");
+        opts.push("  <span class=\"prop\">primaryColor</span>: <span class=\"str\">'" + cfg.primaryColor + "'</span>");
       if (!cfg.showWidget)
-        L.push('o.showWidget=false;');
-      if (cfg.showWidget
-          && cfg.widgetPosition
-          !== DEFAULTS.widgetPosition)
-        L.push("o.widgetPosition='"
-          + cfg.widgetPosition + "';");
-      if (cfg.showWidget
-          && cfg.widgetStyle !== DEFAULTS.widgetStyle)
-        L.push("o.widgetStyle='"
-          + cfg.widgetStyle + "';");
-      if (!cfg.gtmConsentMode)
-        L.push('o.gtmConsentMode=false;');
+        opts.push("  <span class=\"prop\">showWidget</span>: false");
+      if (cfg.showWidget && cfg.widgetPosition !== DEFAULTS.widgetPosition)
+        opts.push("  <span class=\"prop\">widgetPosition</span>: <span class=\"str\">'" + cfg.widgetPosition + "'</span>");
+      if (cfg.showWidget && cfg.widgetStyle !== DEFAULTS.widgetStyle)
+        opts.push("  <span class=\"prop\">widgetStyle</span>: <span class=\"str\">'" + cfg.widgetStyle + "'</span>");
+      if (cfg.gtmConsentMode !== DEFAULTS.gtmConsentMode)
+        opts.push("  <span class=\"prop\">gtmConsentMode</span>: " + cfg.gtmConsentMode);
 
-      // Categories
-      L.push('');
-      L.push(
-        '<span class="cm">// Categories</span>'
-      );
-      L.push('o.categories={};');
-      L.push('o.categories.necessary={');
-      L.push('  enabled:true,readOnly:true,');
-      L.push("  label:'Essentiels',");
-      L.push("  description:" +
-        "'Necessaires au fonctionnement'");
-      L.push('};');
-      L.push('o.categories.analytics={');
-      L.push('  enabled:false,readOnly:false,');
-      L.push("  label:'Statistiques',");
-      L.push("  description:'Analyse d\\'audience'");
-      L.push('};');
-      L.push('o.categories.marketing={');
-      L.push('  enabled:false,readOnly:false,');
-      L.push("  label:'Marketing',");
-      L.push("  description:'Publicite ciblee'");
-      L.push('};');
-      L.push('o.categories.preferences={');
-      L.push('  enabled:false,readOnly:false,');
-      L.push("  label:'Preferences',");
-      L.push("  description:" +
-        "'Personnalisation du site'");
-      L.push('};');
-
-      // Translations
-      L.push('');
-      L.push(
-        '<span class="cm">// Textes</span>'
-      );
-      L.push('o.translations={};');
-
-      var t = escHtml(cfg.title)
-        .replace(/'/g, "\\'");
-      addProp(L, 'o.translations.title', t);
-
-      var d = escHtml(cfg.description)
-        .replace(/'/g, "\\'");
-      addLongProp(L, 'o.translations.description', d);
-
+      // Translations (only non-default)
+      var tParts = [];
+      var t = esc(escHtml(cfg.title));
+      var d = esc(escHtml(cfg.description));
+      tParts.push("    <span class=\"prop\">title</span>: <span class=\"str\">'" + t + "'</span>");
+      tParts.push("    <span class=\"prop\">description</span>: <span class=\"str\">'" + d + "'</span>");
       if (cfg.privacyUrl) {
-        var u = escHtml(cfg.privacyUrl);
-        addProp(L, 'o.translations.privacyPolicyUrl', u);
-        L.push('o.translations.privacyPolicyLabel=');
-        L.push("  'Politique de confidentialite';");
+        tParts.push("    <span class=\"prop\">privacyPolicyUrl</span>: <span class=\"str\">'" + esc(escHtml(cfg.privacyUrl)) + "'</span>");
+        tParts.push("    <span class=\"prop\">privacyPolicyLabel</span>: <span class=\"str\">'Politique de confidentialite'</span>");
       }
+      opts.push("  <span class=\"prop\">translations</span>: {\n" + tParts.join(',\n') + '\n  }');
 
-      // Init call
-      L.push('');
-      L.push(
-        'var cc=new CookieCraft.CookieConsent(o);'
-      );
-      L.push('cc.init();');
-      L.push('&lt;/script&gt;');
+      L.push(opts.join(',\n'));
+      L.push('}).init();');
+      L.push('<span class="tag">&lt;/script&gt;</span>');
 
       return L.join('\n');
-    }
-
-    // Add a property='value'; — split if > 60 chars
-    function addProp(L, key, val) {
-      var line = key + "='" + val + "';";
-      if (line.length <= 60) {
-        L.push(line);
-      } else {
-        L.push(key + '=');
-        L.push("  '" + val + "';");
-      }
-    }
-
-    // Add a long string prop, splitting value into
-    // concatenated chunks if needed
-    function addLongProp(L, key, val) {
-      var full = key + "='" + val + "';";
-      if (full.length <= 60) {
-        L.push(full);
-        return;
-      }
-      L.push(key + '=');
-      var parts = [];
-      var rem = val;
-      while (rem.length > 50) {
-        var cut = rem.lastIndexOf(' ', 50);
-        if (cut < 10) cut = 50;
-        parts.push(rem.substring(0, cut));
-        rem = rem.substring(cut);
-      }
-      parts.push(rem);
-      for (var i = 0; i < parts.length; i++) {
-        var pre = i === 0 ? "  '" : "  +'";
-        var suf = i === parts.length - 1 ? "';" : "'";
-        L.push(pre + parts[i] + suf);
-      }
     }
 
     function generatePlainCode() {

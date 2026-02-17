@@ -561,7 +561,6 @@
          */
         show() {
             const append = () => {
-                var _a;
                 if (!this.element) {
                     this.element = this.createDOM();
                     document.body.appendChild(this.element);
@@ -572,9 +571,6 @@
                     var _a;
                     (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
                 });
-                // Focus first button for accessibility
-                const firstButton = (_a = this.element) === null || _a === void 0 ? void 0 : _a.querySelector('button');
-                firstButton === null || firstButton === void 0 ? void 0 : firstButton.focus();
                 // Disable page interaction if configured
                 if (this.config.disablePageInteraction) {
                     document.body.style.overflow = 'hidden';
@@ -641,18 +637,18 @@
           </div>
           <div class="cc-banner__actions">
             <button
+              class="cc-btn cc-btn--ghost"
+              data-action="reject"
+              aria-label="${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}"
+            >
+              ${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}
+            </button>
+            <button
               class="cc-btn cc-btn--tertiary"
               data-action="customize"
               aria-label="${escapeHtml(translations.customize || 'Personnaliser')}"
             >
               ${escapeHtml(translations.customize || 'Personnaliser')}
-            </button>
-            <button
-              class="cc-btn cc-btn--reject"
-              data-action="reject"
-              aria-label="${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}"
-            >
-              ${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}
             </button>
             <button
               class="cc-btn cc-btn--accept"
@@ -1537,7 +1533,7 @@
          * Validate and set default config values
          */
         validateConfig(config) {
-            return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom', layout: config.layout || 'bar', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
+            return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
         }
     }
 

@@ -161,19 +161,20 @@
   transform: translateY(0);
 }
 
-/* Reject Button (CNIL: same visual weight as Accept - symmetric design) */
-.cc-btn--reject {
-  background: var(--cc-text);
-  color: #ffffff;
+/* Ghost Button (reject / essentials only - styled as subtle link) */
+.cc-btn--ghost {
+  background: transparent;
+  color: var(--cc-text-secondary);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
 }
 
-.cc-btn--reject:hover:not(:disabled) {
-  opacity: 0.85;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.cc-btn--ghost:hover:not(:disabled) {
+  color: var(--cc-text);
+  text-decoration: underline;
 }
 
-.cc-btn--reject:active:not(:disabled) {
+.cc-btn--ghost:active:not(:disabled) {
   transform: translateY(0);
 }
 
