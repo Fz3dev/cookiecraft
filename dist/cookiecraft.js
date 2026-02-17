@@ -621,9 +621,9 @@
             <button
               class="cc-btn cc-btn--reject"
               data-action="reject"
-              aria-label="${escapeHtml(translations.rejectAll || 'Tout refuser')}"
+              aria-label="${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}"
             >
-              ${escapeHtml(translations.rejectAll || 'Tout refuser')}
+              ${escapeHtml(translations.rejectAll || 'Uniquement essentiels')}
             </button>
             <button
               class="cc-btn cc-btn--accept"

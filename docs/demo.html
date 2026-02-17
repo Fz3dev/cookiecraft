@@ -840,9 +840,10 @@
               </button>
             </div>
           </div>
-          <div class="field">
+          <div class="field" id="positionField">
             <span class="field__label">Position</span>
-            <div class="chip-group" data-key="position">
+            <div class="chip-group" data-key="position"
+              id="positionChips">
               <button class="chip" data-v="top">Haut</button>
               <button class="chip active" data-v="bottom">
                 Bas
@@ -1099,6 +1100,56 @@
     }
     updateColorBar();
 
+    // ── Position chips (dynamic per layout) ──────
+    var $posChips = document.getElementById('positionChips');
+
+    var POS_OPTIONS = {
+      bar: [
+        { value: 'top', label: 'Haut' },
+        { value: 'bottom', label: 'Bas' }
+      ],
+      box: [
+        { value: 'bottom-left', label: 'Gauche' },
+        { value: 'bottom-right', label: 'Droite' }
+      ]
+    };
+
+    function updatePositionChips(layout) {
+      var opts = POS_OPTIONS[layout] || POS_OPTIONS.bar;
+      $posChips.innerHTML = '';
+      for (var i = 0; i < opts.length; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'chip';
+        btn.setAttribute('data-v', opts[i].value);
+        btn.textContent = opts[i].label;
+        // Select first option by default
+        if (i === 0) {
+          btn.classList.add('active');
+          cfg.position = opts[i].value;
+        }
+        $posChips.appendChild(btn);
+      }
+      // Bind click events on new chips
+      bindChipGroup($posChips, 'position');
+    }
+
+    function bindChipGroup(group, key) {
+      var btns = group.querySelectorAll('.chip');
+      for (var j = 0; j < btns.length; j++) {
+        (function(btn) {
+          btn.addEventListener('click', function() {
+            var all = group.querySelectorAll('.chip');
+            for (var k = 0; k < all.length; k++) {
+              all[k].classList.remove('active');
+            }
+            btn.classList.add('active');
+            cfg[key] = btn.getAttribute('data-v');
+            onChange();
+          });
+        })(btns[j]);
+      }
+    }
+
     // ── Chip groups (pill selectors) ─────────────
     var groups = document.querySelectorAll(
       '.chip-group[data-key]'
@@ -1107,6 +1158,8 @@
     for (var i = 0; i < groups.length; i++) {
       (function(group) {
         var key = group.getAttribute('data-key');
+        // Skip position group — handled dynamically
+        if (key === 'position') return;
         var btns = group.querySelectorAll('.chip');
         for (var j = 0; j < btns.length; j++) {
           (function(btn) {
@@ -1116,12 +1169,19 @@
               }
               btn.classList.add('active');
               cfg[key] = btn.getAttribute('data-v');
+              // If layout changed, update position chips
+              if (key === 'layout') {
+                updatePositionChips(cfg.layout);
+              }
               onChange();
             });
           })(btns[j]);
         }
       })(groups[i]);
     }
+
+    // Init position chips for default layout
+    bindChipGroup($posChips, 'position');
 
     // ── Color picker ────────────────────────────
     $color.addEventListener('input', function() {
