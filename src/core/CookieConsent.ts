@@ -266,6 +266,7 @@ export class CookieConsent {
   private validateConfig(config: ConsentConfig): ConsentConfig {
     return {
       ...config,
+      categories: config.categories || {},
       mode: config.mode || 'opt-in',
       autoShow: config.autoShow !== undefined ? config.autoShow : true,
       revision: config.revision || 1,

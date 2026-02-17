@@ -180,7 +180,7 @@ export class Banner {
     };
 
     // Only add preferences if it's configured
-    if (this.config.categories.preferences) {
+    if (this.config.categories?.preferences) {
       allCategories.preferences = true;
     }
 
@@ -200,7 +200,7 @@ export class Banner {
     };
 
     // Only add preferences if it's configured
-    if (this.config.categories.preferences) {
+    if (this.config.categories?.preferences) {
       necessaryOnly.preferences = false;
     }
 

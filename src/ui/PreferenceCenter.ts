@@ -253,7 +253,7 @@ export class PreferenceCenter {
     };
 
     // Only add preferences if it's configured
-    if (this.config.categories.preferences) {
+    if (this.config.categories?.preferences) {
       necessaryOnly.preferences = false;
     }
 

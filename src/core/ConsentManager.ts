@@ -22,10 +22,12 @@ export class ConsentManager {
       return false;
     }
 
-    // Validate against config
-    for (const key of Object.keys(categories)) {
-      if (!(key in this.config.categories)) {
-        return false;
+    // Validate against config (skip if no categories configured)
+    if (this.config.categories && Object.keys(this.config.categories).length > 0) {
+      for (const key of Object.keys(categories)) {
+        if (!(key in this.config.categories)) {
+          return false;
+        }
       }
     }
 

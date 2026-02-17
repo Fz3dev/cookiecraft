@@ -111,10 +111,12 @@
             if (!categories.necessary) {
                 return false;
             }
-            // Validate against config
-            for (const key of Object.keys(categories)) {
-                if (!(key in this.config.categories)) {
-                    return false;
+            // Validate against config (skip if no categories configured)
+            if (this.config.categories && Object.keys(this.config.categories).length > 0) {
+                for (const key of Object.keys(categories)) {
+                    if (!(key in this.config.categories)) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -699,36 +701,36 @@
          * Handle accept all action
          */
         handleAcceptAll() {
-            var _a, _b;
+            var _a, _b, _c;
             const allCategories = {
                 necessary: true,
                 analytics: true,
                 marketing: true,
             };
             // Only add preferences if it's configured
-            if (this.config.categories.preferences) {
+            if ((_a = this.config.categories) === null || _a === void 0 ? void 0 : _a.preferences) {
                 allCategories.preferences = true;
             }
             this.eventEmitter.emit('consent:accept', allCategories);
-            (_b = (_a = this.config).onAccept) === null || _b === void 0 ? void 0 : _b.call(_a, allCategories);
+            (_c = (_b = this.config).onAccept) === null || _c === void 0 ? void 0 : _c.call(_b, allCategories);
             this.hide();
         }
         /**
          * Handle reject all action
          */
         handleRejectAll() {
-            var _a, _b;
+            var _a, _b, _c;
             const necessaryOnly = {
                 necessary: true,
                 analytics: false,
                 marketing: false,
             };
             // Only add preferences if it's configured
-            if (this.config.categories.preferences) {
+            if ((_a = this.config.categories) === null || _a === void 0 ? void 0 : _a.preferences) {
                 necessaryOnly.preferences = false;
             }
             this.eventEmitter.emit('consent:reject', necessaryOnly);
-            (_b = (_a = this.config).onReject) === null || _b === void 0 ? void 0 : _b.call(_a);
+            (_c = (_b = this.config).onReject) === null || _c === void 0 ? void 0 : _c.call(_b);
             this.hide();
         }
         /**
@@ -975,13 +977,14 @@
          * Handle reject all
          */
         handleRejectAll() {
+            var _a;
             const necessaryOnly = {
                 necessary: true,
                 analytics: false,
                 marketing: false,
             };
             // Only add preferences if it's configured
-            if (this.config.categories.preferences) {
+            if ((_a = this.config.categories) === null || _a === void 0 ? void 0 : _a.preferences) {
                 necessaryOnly.preferences = false;
             }
             this.eventEmitter.emit('consent:reject', necessaryOnly);
@@ -1536,7 +1539,7 @@
          * Validate and set default config values
          */
         validateConfig(config) {
-            return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
+            return Object.assign(Object.assign({}, config), { categories: config.categories || {}, mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
         }
     }
 
