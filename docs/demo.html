@@ -428,124 +428,39 @@
       .main { max-height: none; }
     }
 
-    /* ── Browser mockup ──────────────────────── */
-    .browser {
-      flex: 1;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      border: 1px solid var(--gray-200);
-      background: white;
-      box-shadow: var(--shadow-lg);
+    /* ── Preview actions ─────────────────────── */
+    .preview-actions {
       display: flex;
-      flex-direction: column;
-      min-height: 420px;
+      gap: 8px;
+      margin-bottom: 4px;
     }
 
-    .browser__bar {
-      height: 44px;
-      background: var(--gray-50);
-      border-bottom: 1px solid var(--gray-200);
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .browser__dots {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    .browser__dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    .browser__dot--r { background: #ff5f57; }
-    .browser__dot--y { background: #febc2e; }
-    .browser__dot--g { background: #28c840; }
-
-    .browser__url {
-      flex: 1;
-      background: white;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-sm);
-      padding: 5px 12px;
-      font-size: 0.72rem;
-      color: var(--gray-400);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-    }
-    .browser__url svg {
-      width: 12px; height: 12px;
-      flex-shrink: 0;
-      color: var(--gray-400);
-    }
-
-    .browser__actions {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .browser__btn {
-      padding: 5px 12px;
-      border-radius: var(--radius-sm);
-      font-size: 0.72rem;
+    .preview-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
       font-weight: 500;
       font-family: var(--font);
       cursor: pointer;
       transition: all 0.15s;
-      border: 1px solid var(--gray-200);
+      border: 1.5px solid var(--gray-200);
       background: white;
       color: var(--gray-600);
     }
-    .browser__btn:hover {
+    .preview-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(102,126,234,0.04);
+    }
+    .preview-btn:active { transform: scale(0.96); }
+    .preview-btn--primary {
       background: var(--primary);
       border-color: var(--primary);
       color: white;
     }
-    .browser__btn--primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-    .browser__btn--primary:hover {
+    .preview-btn--primary:hover {
       background: var(--primary-hover);
       border-color: var(--primary-hover);
-    }
-
-    .browser__viewport {
-      flex: 1;
-      position: relative;
-      background: white;
-      overflow: hidden;
-      transition: opacity 0.15s;
-    }
-    .browser__viewport.refreshing {
-      opacity: 0.6;
-    }
-
-    .preview-placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--gray-400);
-      gap: 12px;
-    }
-    .preview-placeholder svg {
-      width: 56px; height: 56px;
-      opacity: 0.35;
-    }
-    .preview-placeholder span {
-      font-size: 0.85rem;
-      font-weight: 500;
     }
 
     /* ── Code block (terminal) ───────────────── */
@@ -940,47 +855,18 @@
     <!-- ── Main ──────────────────────────────── -->
     <main class="main">
 
-      <!-- Browser mockup -->
-      <div class="browser">
-        <div class="browser__bar">
-          <div class="browser__dots">
-            <span class="browser__dot browser__dot--r"></span>
-            <span class="browser__dot browser__dot--y"></span>
-            <span class="browser__dot browser__dot--g"></span>
-          </div>
-          <div class="browser__url">
-            <svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
-            <span>votre-site.com</span>
-          </div>
-          <div class="browser__actions">
-            <button class="browser__btn" id="resetBtn">
-              Reset
-            </button>
-            <button class="browser__btn browser__btn--primary"
-              id="showBannerBtn">
-              Banniere
-            </button>
-            <button class="browser__btn" id="showPrefsBtn">
-              Preferences
-            </button>
-          </div>
-        </div>
-        <div class="browser__viewport" id="previewFrame">
-          <div class="preview-placeholder"
-            id="previewPlaceholder">
-            <svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <line x1="8" y1="21" x2="16" y2="21"/>
-              <line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-            <span>Cliquez sur Banniere pour voir l'apercu</span>
-          </div>
-        </div>
+      <!-- Preview actions -->
+      <div class="preview-actions">
+        <button class="preview-btn preview-btn--primary"
+          id="showBannerBtn">
+          Banniere
+        </button>
+        <button class="preview-btn" id="showPrefsBtn">
+          Preferences
+        </button>
+        <button class="preview-btn" id="resetBtn">
+          Reset
+        </button>
       </div>
 
       <!-- Terminal code block -->
@@ -1087,10 +973,8 @@
     var $code = document.getElementById('codeOutput');
     var $copy = document.getElementById('copyBtn');
     var $copyTop = document.getElementById('copyBtnTop');
-    var $placeholder = document.getElementById('previewPlaceholder');
     var $widgetPos = document.getElementById('widgetPosSection');
     var $widgetSty = document.getElementById('widgetStyleSection');
-    var $viewport = document.querySelector('.browser__viewport');
 
     // ── Helpers ──────────────────────────────────
     function escHtml(s) {
@@ -1483,11 +1367,6 @@
     // ── Central change handler ──────────────────
     function onChange() {
       updateCode();
-      // Preview refresh flash
-      $viewport.classList.add('refreshing');
-      setTimeout(function() {
-        $viewport.classList.remove('refreshing');
-      }, 150);
       initPreview();
     }
 
@@ -1497,14 +1376,12 @@
         localStorage.removeItem('cookiecraft_consent');
         initPreview();
         ccInstance.show();
-        $placeholder.style.display = 'none';
       });
 
     document.getElementById('showPrefsBtn')
       .addEventListener('click', function() {
         if (!ccInstance) initPreview();
         ccInstance.showPreferences();
-        $placeholder.style.display = 'none';
       });
 
     document.getElementById('resetBtn')
@@ -1514,7 +1391,6 @@
           ccInstance.destroy();
           ccInstance = null;
         }
-        $placeholder.style.display = 'flex';
       });
 
     // ── Copy function ───────────────────────────
