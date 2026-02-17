@@ -1029,11 +1029,17 @@
     </main>
   </div>
 
-  <!-- Load CookieCraft for preview -->
-  <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/gh/Fz3dev/cookiecraft@main/dist/cookiecraft.css">
-  <script
-    src="https://cdn.jsdelivr.net/gh/Fz3dev/cookiecraft@main/dist/cookiecraft.min.js">
+  <!-- Load CookieCraft for preview (local dev or CDN) -->
+  <script>
+  var __ccBase = (location.hostname === 'localhost'
+    || location.hostname === '127.0.0.1')
+    ? '/dist/'
+    : 'https://cdn.jsdelivr.net/gh/Fz3dev/cookiecraft@main/dist/';
+  document.write('<link rel="stylesheet" href="'
+    + __ccBase + 'cookiecraft.css">');
+  document.write('<scr' + 'ipt src="'
+    + __ccBase + 'cookiecraft.min.js"></scr'
+    + 'ipt>');
   </script>
 
   <script>
