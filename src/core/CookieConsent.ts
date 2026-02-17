@@ -274,8 +274,8 @@ export class CookieConsent {
       animationStyle: config.animationStyle || 'smooth',
       preferencesPosition: config.preferencesPosition || 'center',
       showWidget: config.showWidget !== undefined ? config.showWidget : true,
-      widgetPosition: config.widgetPosition || 'bottom-right',
-      widgetStyle: config.widgetStyle || 'full',
+      widgetPosition: config.widgetPosition || 'bottom-left',
+      widgetStyle: config.widgetStyle || 'compact',
     };
   }
 }

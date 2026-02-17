@@ -7,8 +7,8 @@
 .cc-modal,
 .cc-widget {
   /* Colors */
-  --cc-primary: #0066cc;
-  --cc-primary-hover: #0052a3;
+  --cc-primary: #1a1a1a;
+  --cc-primary-hover: #333333;
   --cc-primary-glow: color-mix(in srgb, var(--cc-primary) 30%, transparent);
   --cc-bg: #ffffff;
   --cc-text: #1a1a1a;

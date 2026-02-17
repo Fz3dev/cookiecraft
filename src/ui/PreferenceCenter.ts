@@ -5,6 +5,7 @@
 import { ConsentConfig, ConsentCategories } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
 import { escapeHtml, sanitizeUrl, sanitizeColor } from '../utils/sanitize';
+import { buildColorStyle } from '../utils/color';
 
 export class PreferenceCenter {
   private config: ConsentConfig;
@@ -78,9 +79,7 @@ export class PreferenceCenter {
     const position = this.config.preferencesPosition || 'center';
 
     const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-    const colorStyle = safeColor
-      ? `--cc-primary: ${safeColor}; --cc-primary-hover: ${this.adjustColorBrightness(safeColor, -15)};`
-      : '';
+    const colorStyle = buildColorStyle(safeColor);
 
     const privacyLinkHtml = translations.privacyPolicyUrl
       ? (() => {
@@ -295,27 +294,4 @@ export class PreferenceCenter {
   /**
    * Adjust color brightness for hover effect
    */
-  private adjustColorBrightness(color: string, percent: number): string {
-    // Remove # if present
-    const hex = color.replace('#', '');
-
-    // Convert to RGB
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
-    // Adjust brightness
-    const adjust = (value: number) => {
-      const adjusted = value + (value * percent / 100);
-      return Math.max(0, Math.min(255, Math.round(adjusted)));
-    };
-
-    // Convert back to hex
-    const toHex = (value: number) => {
-      const hex = value.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    };
-
-    return `#${toHex(adjust(r))}${toHex(adjust(g))}${toHex(adjust(b))}`;
-  }
 }

@@ -6,6 +6,7 @@
 import { ConsentConfig } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
 import { escapeHtml, sanitizeColor } from '../utils/sanitize';
+import { buildColorStyle } from '../utils/color';
 
 export class FloatingWidget {
   private config: ConsentConfig;
@@ -79,7 +80,7 @@ export class FloatingWidget {
     const widgetStyle = this.config.widgetStyle || 'full';
 
     const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-    const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
+    const colorStyle = buildColorStyle(safeColor);
 
     const template = `
       <div

@@ -5,6 +5,7 @@
 import { ConsentConfig, ConsentCategories } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
 import { escapeHtml, sanitizeUrl, sanitizeColor } from '../utils/sanitize';
+import { buildColorStyle } from '../utils/color';
 
 export class Banner {
   private config: ConsentConfig;
@@ -88,7 +89,7 @@ export class Banner {
     const backdropBlur = this.config.backdropBlur !== false;
 
     const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-    const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
+    const colorStyle = buildColorStyle(safeColor);
 
     const template = `
       <div

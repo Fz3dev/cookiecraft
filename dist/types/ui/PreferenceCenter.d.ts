@@ -45,8 +45,4 @@ export declare class PreferenceCenter {
      * Trap focus within modal
      */
     private trapFocus;
-    /**
-     * Adjust color brightness for hover effect
-     */
-    private adjustColorBrightness;
 }

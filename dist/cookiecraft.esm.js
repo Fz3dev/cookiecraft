@@ -513,6 +513,35 @@ function sanitizeColor(color) {
 }
 
 /**
+ * Adjust a hex color brightness by a percentage
+ * Negative = darker, positive = lighter
+ */
+function adjustColorBrightness(color, percent) {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const adjust = (value) => {
+        const adjusted = value + (value * percent / 100);
+        return Math.max(0, Math.min(255, Math.round(adjusted)));
+    };
+    const toHex = (value) => {
+        const h = value.toString(16);
+        return h.length === 1 ? '0' + h : h;
+    };
+    return `#${toHex(adjust(r))}${toHex(adjust(g))}${toHex(adjust(b))}`;
+}
+/**
+ * Build inline CSS custom properties for a primary color
+ */
+function buildColorStyle(safeColor) {
+    if (!safeColor)
+        return '';
+    const hover = adjustColorBrightness(safeColor, -15);
+    return `--cc-primary: ${safeColor}; --cc-primary-hover: ${hover};`;
+}
+
+/**
  * Banner - Cookie consent banner component
  */
 class Banner {
@@ -585,7 +614,7 @@ class Banner {
         const layout = this.config.layout || 'bar';
         const backdropBlur = this.config.backdropBlur !== false;
         const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-        const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
+        const colorStyle = buildColorStyle(safeColor);
         const template = `
       <div
         class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
@@ -784,9 +813,7 @@ class PreferenceCenter {
         const theme = this.config.theme || 'light';
         const position = this.config.preferencesPosition || 'center';
         const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-        const colorStyle = safeColor
-            ? `--cc-primary: ${safeColor}; --cc-primary-hover: ${this.adjustColorBrightness(safeColor, -15)};`
-            : '';
+        const colorStyle = buildColorStyle(safeColor);
         const privacyLinkHtml = translations.privacyPolicyUrl
             ? (() => {
                 const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
@@ -984,28 +1011,6 @@ class PreferenceCenter {
             }
         });
     }
-    /**
-     * Adjust color brightness for hover effect
-     */
-    adjustColorBrightness(color, percent) {
-        // Remove # if present
-        const hex = color.replace('#', '');
-        // Convert to RGB
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        // Adjust brightness
-        const adjust = (value) => {
-            const adjusted = value + (value * percent / 100);
-            return Math.max(0, Math.min(255, Math.round(adjusted)));
-        };
-        // Convert back to hex
-        const toHex = (value) => {
-            const hex = value.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-        };
-        return `#${toHex(adjust(r))}${toHex(adjust(g))}${toHex(adjust(b))}`;
-    }
 }
 
 /**
@@ -1075,7 +1080,7 @@ class FloatingWidget {
         const widgetPosition = this.config.widgetPosition || 'bottom-right';
         const widgetStyle = this.config.widgetStyle || 'full';
         const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
-        const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
+        const colorStyle = buildColorStyle(safeColor);
         const template = `
       <div
         class="cc-widget cc-widget--${escapeHtml(widgetPosition)} cc-widget--${escapeHtml(widgetStyle)}"
@@ -1526,7 +1531,7 @@ class CookieConsent {
      * Validate and set default config values
      */
     validateConfig(config) {
-        return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom', layout: config.layout || 'bar', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-right', widgetStyle: config.widgetStyle || 'full' });
+        return Object.assign(Object.assign({}, config), { mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom', layout: config.layout || 'bar', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
     }
 }
 

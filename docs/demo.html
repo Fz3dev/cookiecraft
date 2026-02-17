@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #667eea;
+      --primary: #1a1a1a;
       --primary-hover: #5568d3;
       --gray-50: #fafbfc;
       --gray-100: #f3f4f6;
@@ -653,12 +653,14 @@
             <div class="color-bar" id="colorBar"></div>
             <div class="color-row">
               <input type="color" class="color-swatch"
-                id="cfgColor" value="#667eea">
+                id="cfgColor" value="#1a1a1a">
               <input type="text" class="color-hex"
-                id="cfgColorHex" value="#667eea" maxlength="7">
+                id="cfgColorHex" value="#1a1a1a" maxlength="7">
             </div>
             <div class="color-presets" id="colorPresets">
               <button class="color-preset active"
+                style="background:#1a1a1a" data-c="#1a1a1a"></button>
+              <button class="color-preset"
                 style="background:#667eea" data-c="#667eea"></button>
               <button class="color-preset"
                 style="background:#10b981" data-c="#10b981"></button>
@@ -672,8 +674,6 @@
                 style="background:#06b6d4" data-c="#06b6d4"></button>
               <button class="color-preset"
                 style="background:#ec4899" data-c="#ec4899"></button>
-              <button class="color-preset"
-                style="background:#1a1a1a" data-c="#1a1a1a"></button>
             </div>
           </div>
           <!-- Theme -->
@@ -795,10 +795,11 @@
           <div class="field" id="widgetPosSection">
             <span class="field__label">Position</span>
             <div class="chip-group" data-key="widgetPosition">
-              <button class="chip" data-v="bottom-left">
+              <button class="chip active"
+                data-v="bottom-left">
                 Bas gauche
               </button>
-              <button class="chip active"
+              <button class="chip"
                 data-v="bottom-right">
                 Bas droite
               </button>
@@ -807,10 +808,10 @@
           <div class="field" id="widgetStyleSection">
             <span class="field__label">Style</span>
             <div class="chip-group" data-key="widgetStyle">
-              <button class="chip active" data-v="full">
+              <button class="chip" data-v="full">
                 Icone + Texte
               </button>
-              <button class="chip" data-v="compact">
+              <button class="chip active" data-v="compact">
                 Icone seule
               </button>
             </div>
@@ -838,7 +839,7 @@
                 GTM Consent Mode v2
               </span>
               <label class="toggle">
-                <input type="checkbox" id="cfgGtm" checked>
+                <input type="checkbox" id="cfgGtm">
                 <span class="toggle-track"></span>
                 <span class="toggle-thumb"></span>
               </label>
@@ -935,11 +936,11 @@
       layout: 'bar',
       position: 'bottom',
       theme: 'light',
-      primaryColor: '#667eea',
+      primaryColor: '#1a1a1a',
       showWidget: true,
-      widgetPosition: 'bottom-right',
-      widgetStyle: 'full',
-      gtmConsentMode: true
+      widgetPosition: 'bottom-left',
+      widgetStyle: 'compact',
+      gtmConsentMode: false
     };
 
     // ── State ────────────────────────────────────
@@ -947,11 +948,11 @@
       layout: 'bar',
       position: 'bottom',
       theme: 'light',
-      primaryColor: '#667eea',
+      primaryColor: '#1a1a1a',
       showWidget: true,
-      widgetPosition: 'bottom-right',
-      widgetStyle: 'full',
-      gtmConsentMode: true,
+      widgetPosition: 'bottom-left',
+      widgetStyle: 'compact',
+      gtmConsentMode: false,
       title: 'Nous utilisons des cookies',
       description:
         'Ce site utilise des cookies pour ameliorer'
