@@ -953,9 +953,6 @@
         <button class="preview-btn" id="showPrefsBtn">
           Preferences
         </button>
-        <button class="preview-btn" id="resetBtn">
-          Reset
-        </button>
       </div>
 
       <!-- Terminal code block -->
@@ -1449,14 +1446,6 @@
         ccInstance.showPreferences();
       });
 
-    document.getElementById('resetBtn')
-      .addEventListener('click', function() {
-        localStorage.removeItem('cookiecraft_consent');
-        if (ccInstance) {
-          ccInstance.destroy();
-          ccInstance = null;
-        }
-      });
 
     // ── Copy function ───────────────────────────
     function doCopy(btn, labelHtml) {
