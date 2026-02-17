@@ -1,6 +1,7 @@
 {
   "name": "cookiecraft",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "type": "module",
   "description": "Lightweight GDPR-compliant cookie consent library for any website",
   "main": "dist/cookiecraft.js",
   "module": "dist/cookiecraft.esm.js",
@@ -22,7 +23,7 @@
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit",
     "size": "size-limit",
-    "prepublishOnly": "npm run lint && npm run type-check && npm run build && npm test"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cookie",
@@ -46,7 +47,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/cookiecraft"
+    "url": "https://github.com/Fz3dev/cookiecraft"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",

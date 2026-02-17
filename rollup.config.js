@@ -39,6 +39,7 @@ export default [
       file: 'dist/cookiecraft.js',
       format: 'umd',
       name: 'CookieCraft',
+      exports: 'named',
       sourcemap: true
     },
     plugins: [
@@ -58,6 +59,7 @@ export default [
       file: 'dist/cookiecraft.min.js',
       format: 'umd',
       name: 'CookieCraft',
+      exports: 'named',
       sourcemap: true
     },
     plugins: [
@@ -66,7 +68,8 @@ export default [
         compress: {
           passes: 2,
           pure_getters: true,
-          unsafe: true
+          unsafe: true,
+          drop_console: true
         },
         mangle: {
           properties: {

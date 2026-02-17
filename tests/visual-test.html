@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CookieCraft - Visual Test Suite</title>
+  <link rel="stylesheet" href="../dist/cookiecraft.css">
+  <style>
+    /* Simulate a Webflow-like site */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    .page-header {
+      background: #1a1a2e;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-header h1 { font-size: 1.5rem; }
+    .page-content {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .test-controls {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .test-controls h2 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .control-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: block;
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: #f0f0f0; }
+    .btn.active { background: #0066cc; color: white; border-color: #0066cc; }
+    .btn.danger { border-color: #e53e3e; color: #e53e3e; }
+    .btn.danger:hover { background: #e53e3e; color: white; }
+    .status-panel {
+      background: #1a1a2e;
+      color: #a0aec0;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.8125rem;
+      margin-top: 1rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .status-panel .log-entry { margin: 0.25rem 0; }
+    .status-panel .log-entry.success { color: #68d391; }
+    .status-panel .log-entry.info { color: #63b3ed; }
+    .status-panel .log-entry.warning { color: #f6e05e; }
+    .filler-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .filler-content h2 { margin-bottom: 1rem; }
+    .filler-content p { margin-bottom: 1rem; color: #666; }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>CookieCraft Visual Test</h1>
+    <span>v1.0.0</span>
+  </header>
+
+  <main class="page-content">
+    <!-- Test Controls -->
+    <div class="test-controls">
+      <h2>Configuration</h2>
+
+      <div class="control-group">
+        <label>Layout</label>
+        <button class="btn active" data-config="layout" data-value="bar">Bar</button>
+        <button class="btn" data-config="layout" data-value="box">Box</button>
+        <button class="btn" data-config="layout" data-value="floating">Floating</button>
+      </div>
+
+      <div class="control-group">
+        <label>Position</label>
+        <button class="btn active" data-config="position" data-value="bottom">Bottom</button>
+        <button class="btn" data-config="position" data-value="top">Top</button>
+        <button class="btn" data-config="position" data-value="center">Center</button>
+        <button class="btn" data-config="position" data-value="bottom-right">Bottom Right</button>
+        <button class="btn" data-config="position" data-value="bottom-left">Bottom Left</button>
+      </div>
+
+      <div class="control-group">
+        <label>Theme</label>
+        <button class="btn active" data-config="theme" data-value="light">Light</button>
+        <button class="btn" data-config="theme" data-value="dark">Dark</button>
+        <button class="btn" data-config="theme" data-value="auto">Auto</button>
+      </div>
+
+      <div class="control-group">
+        <label>Widget Style</label>
+        <button class="btn active" data-config="widgetStyle" data-value="full">Full</button>
+        <button class="btn" data-config="widgetStyle" data-value="compact">Compact</button>
+      </div>
+
+      <div class="control-group">
+        <label>Primary Color</label>
+        <button class="btn active" data-config="primaryColor" data-value="#0066cc">Blue</button>
+        <button class="btn" data-config="primaryColor" data-value="#e53e3e">Red</button>
+        <button class="btn" data-config="primaryColor" data-value="#38a169">Green</button>
+        <button class="btn" data-config="primaryColor" data-value="#805ad5">Purple</button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="test-controls">
+      <h2>Actions</h2>
+      <div class="control-group">
+        <button class="btn" id="btn-show">Show Banner</button>
+        <button class="btn" id="btn-preferences">Show Preferences</button>
+        <button class="btn" id="btn-get-consent">Get Consent</button>
+        <button class="btn danger" id="btn-reset">Reset Consent</button>
+      </div>
+      <div id="status-panel" class="status-panel">
+        <div class="log-entry info">Ready to test...</div>
+      </div>
+    </div>
+
+    <!-- Filler content to simulate a real page -->
+    <div class="filler-content">
+      <h2>Simulated Page Content</h2>
+      <p>This page simulates a Webflow site to test that CookieCraft renders correctly without style conflicts.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+    </div>
+
+    <div class="filler-content">
+      <h2>More Content Below</h2>
+      <p>Testing scroll behavior with the banner visible.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula.</p>
+    </div>
+  </main>
+
+  <!-- Blocked test scripts -->
+  <script type="text/plain" data-cookieconsent="analytics">
+    console.log('[TEST] Analytics script executed');
+  </script>
+  <script type="text/plain" data-cookieconsent="marketing">
+    console.log('[TEST] Marketing script executed');
+  </script>
+
+  <script src="../dist/cookiecraft.js"></script>
+  <script>
+    // Current config state
+    let currentConfig = {
+      layout: 'bar',
+      position: 'bottom',
+      theme: 'light',
+      widgetStyle: 'full',
+      primaryColor: '#0066cc',
+    };
+
+    let cookieConsent = null;
+
+    function log(message, type = 'info') {
+      const panel = document.getElementById('status-panel');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      panel.appendChild(entry);
+      panel.scrollTop = panel.scrollHeight;
+    }
+
+    function initCookieConsent() {
+      // Destroy previous instance
+      if (cookieConsent) {
+        cookieConsent.destroy();
+      }
+
+      // Clear stored consent for fresh test
+      localStorage.removeItem('cookiecraft_consent');
+
+      cookieConsent = new CookieCraft.CookieConsent({
+        mode: 'opt-in',
+        autoShow: true,
+        revision: 1,
+        layout: currentConfig.layout,
+        position: currentConfig.position,
+        theme: currentConfig.theme,
+        primaryColor: currentConfig.primaryColor,
+        widgetStyle: currentConfig.widgetStyle,
+        widgetPosition: 'bottom-left',
+        showWidget: true,
+        categories: {
+          necessary: {
+            enabled: true,
+            readOnly: true,
+            label: 'Essentiels',
+            description: 'Cookies necessaires au bon fonctionnement du site'
+          },
+          analytics: {
+            enabled: false,
+            readOnly: false,
+            label: 'Statistiques',
+            description: 'Pour comprendre comment vous utilisez notre site'
+          },
+          marketing: {
+            enabled: false,
+            readOnly: false,
+            label: 'Marketing',
+            description: 'Pour vous proposer du contenu personnalise'
+          },
+          preferences: {
+            enabled: false,
+            readOnly: false,
+            label: 'Preferences',
+            description: 'Pour memoriser vos choix et preferences'
+          }
+        },
+        translations: {
+          title: 'Nous utilisons des cookies',
+          description: 'Pour ameliorer votre experience sur notre site, nous utilisons des cookies.',
+          acceptAll: 'Tout accepter',
+          rejectAll: 'Tout refuser',
+          customize: 'Personnaliser',
+          savePreferences: 'Enregistrer',
+          privacyPolicyUrl: 'https://example.com/privacy',
+          privacyPolicyLabel: 'Politique de confidentialite',
+        },
+        onAccept: (categories) => {
+          log(`Accepted: ${JSON.stringify(categories)}`, 'success');
+        },
+        onReject: () => {
+          log('Rejected all optional cookies', 'warning');
+        },
+        onChange: (categories) => {
+          log(`Changed: ${JSON.stringify(categories)}`, 'info');
+        }
+      });
+
+      cookieConsent.on('consent:init', () => log('Event: consent:init', 'info'));
+      cookieConsent.on('consent:show', () => log('Event: consent:show', 'info'));
+      cookieConsent.on('script:activated', (data) => log(`Script activated: ${JSON.stringify(data)}`, 'success'));
+
+      cookieConsent.init();
+      log(`Initialized with: ${currentConfig.layout} / ${currentConfig.position} / ${currentConfig.theme}`, 'success');
+    }
+
+    // Config button handlers
+    document.querySelectorAll('[data-config]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const configKey = btn.getAttribute('data-config');
+        const value = btn.getAttribute('data-value');
+
+        // Update active state
+        btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentConfig[configKey] = value;
+        log(`Config changed: ${configKey} = ${value}`, 'info');
+        initCookieConsent();
+      });
+    });
+
+    // Action buttons
+    document.getElementById('btn-show').addEventListener('click', () => {
+      if (cookieConsent) cookieConsent.show();
+    });
+
+    document.getElementById('btn-preferences').addEventListener('click', () => {
+      if (cookieConsent) cookieConsent.showPreferences();
+    });
+
+    document.getElementById('btn-get-consent').addEventListener('click', () => {
+      if (cookieConsent) {
+        const consent = cookieConsent.getConsent();
+        log(`Current consent: ${JSON.stringify(consent)}`, consent ? 'success' : 'warning');
+      }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      if (cookieConsent) {
+        cookieConsent.reset();
+        log('Consent reset', 'warning');
+      }
+    });
+
+    // Initialize on load
+    initCookieConsent();
+  </script>
+</body>
+</html>
