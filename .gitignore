@@ -5,6 +5,7 @@ yarn.lock
 
 # Build outputs
 dist/stats.html
+dist/test.html
 
 # Logs
 *.log

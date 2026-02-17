@@ -1399,6 +1399,9 @@ class CookieConsent {
                 this.showBanner();
             }
         }
+        // Store instance globally so it won't be garbage collected
+        // when used without a variable (e.g. new CookieConsent({}).init())
+        window.cookieConsent = this;
         this.eventEmitter.emit('consent:init');
     }
     /**

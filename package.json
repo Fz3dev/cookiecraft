@@ -1,6 +1,6 @@
 {
   "name": "cookiecraft",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "Lightweight GDPR-compliant cookie consent library for any website",
   "main": "dist/cookiecraft.js",
@@ -10,8 +10,7 @@
   "unpkg": "dist/cookiecraft.min.js",
   "files": [
     "dist",
-    "README.md",
-    "WEBFLOW_GUIDE.md"
+    "README.md"
   ],
   "scripts": {
     "dev": "rollup -c -w",
