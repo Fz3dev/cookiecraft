@@ -34,6 +34,7 @@ export class ScriptBlocker {
    */
   public block(): void {
     this.currentConsent = null;
+    this.blockedScripts.clear();
     this.blockExistingScripts();
   }
 
@@ -44,13 +45,17 @@ export class ScriptBlocker {
     this.currentConsent = categories;
 
     // Reactivate blocked scripts based on consent
+    const toRemove: string[] = [];
     this.blockedScripts.forEach((script, id) => {
       const category = this.categoryManager.getCategoryForScript(script);
       if (category && this.categoryManager.isAllowed(category, categories)) {
         this.reactivateScript(script);
-        this.blockedScripts.delete(id);
+        toRemove.push(id);
       }
     });
+
+    // Remove after iteration to avoid modifying map during forEach
+    toRemove.forEach((id) => this.blockedScripts.delete(id));
   }
 
   /**
@@ -119,6 +124,9 @@ export class ScriptBlocker {
     if (script.type !== 'text/plain') {
       const id = this.generateScriptId(script);
 
+      // Don't re-block scripts we already know about
+      if (this.blockedScripts.has(id)) return;
+
       // Store original type if it exists
       const originalType = script.type || 'text/javascript';
       script.setAttribute('data-original-type', originalType);
@@ -166,9 +174,38 @@ export class ScriptBlocker {
   }
 
   /**
-   * Generate unique ID for a script
+   * Generate a stable, deterministic ID for a script element
    */
   private generateScriptId(script: HTMLScriptElement): string {
-    return script.src || `inline-${Date.now()}-${Math.random()}`;
+    // Use src for external scripts (stable across calls)
+    if (script.src) {
+      return `src:${script.src}`;
+    }
+
+    // For inline scripts, use a hash of the content for stability
+    const content = script.textContent || '';
+    const category = script.getAttribute('data-cookieconsent') || '';
+
+    // Use existing data-cc-id if present (allows reset/re-block)
+    const existingId = script.getAttribute('data-cc-id');
+    if (existingId) return existingId;
+
+    // Generate deterministic ID from content + category
+    const id = `inline:${category}:${this.simpleHash(content)}`;
+    script.setAttribute('data-cc-id', id);
+    return id;
+  }
+
+  /**
+   * Simple hash function for content-based script identification
+   */
+  private simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString(36);
   }
 }

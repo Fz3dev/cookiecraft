@@ -5,6 +5,7 @@
 
 import { ConsentConfig } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
+import { escapeHtml, sanitizeColor } from '../utils/sanitize';
 
 export class FloatingWidget {
   private config: ConsentConfig;
@@ -21,21 +22,25 @@ export class FloatingWidget {
    * Show the floating widget
    */
   public show(): void {
-    console.log('🎯 FloatingWidget.show() called');
+    const append = () => {
+      if (!this.element) {
+        this.element = this.createDOM();
+        document.body.appendChild(this.element);
+        this.attachListeners();
+      }
 
-    if (!this.element) {
-      this.element = this.createDOM();
-      document.body.appendChild(this.element);
-      this.attachListeners();
-      console.log('✅ Widget element created and appended to body');
+      // Delay to allow for transition
+      requestAnimationFrame(() => {
+        this.element?.classList.add('is-visible');
+        this.isVisible = true;
+      });
+    };
+
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', append);
+      return;
     }
-
-    // Delay to allow for transition
-    requestAnimationFrame(() => {
-      this.element?.classList.add('is-visible');
-      this.isVisible = true;
-      console.log('✅ Widget is-visible class added');
-    });
+    append();
   }
 
   /**
@@ -73,16 +78,17 @@ export class FloatingWidget {
     const widgetPosition = this.config.widgetPosition || 'bottom-right';
     const widgetStyle = this.config.widgetStyle || 'full';
 
-    console.log('🍪 Widget config:', { widgetPosition, widgetStyle, configWidgetStyle: this.config.widgetStyle });
+    const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+    const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
 
     const template = `
       <div
-        class="cc-widget cc-widget--${widgetPosition} cc-widget--${widgetStyle}"
+        class="cc-widget cc-widget--${escapeHtml(widgetPosition)} cc-widget--${escapeHtml(widgetStyle)}"
         role="button"
-        aria-label="${translations.cookieSettings || 'Paramètres des cookies'}"
+        aria-label="${escapeHtml(translations.cookieSettings || 'Paramètres des cookies')}"
         tabindex="0"
-        data-theme="${theme}"
-        style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor};` : ''}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <svg class="cc-widget__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
@@ -93,7 +99,7 @@ export class FloatingWidget {
           <circle cx="17" cy="17" r="1.5"/>
         </svg>
         <span class="cc-widget__text">
-          ${translations.cookies || 'Cookies'}
+          ${escapeHtml(translations.cookies || 'Cookies')}
         </span>
       </div>
     `;

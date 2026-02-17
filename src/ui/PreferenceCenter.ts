@@ -4,6 +4,7 @@
 
 import { ConsentConfig, ConsentCategories } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
+import { escapeHtml, sanitizeUrl, sanitizeColor } from '../utils/sanitize';
 
 export class PreferenceCenter {
   private config: ConsentConfig;
@@ -25,17 +26,25 @@ export class PreferenceCenter {
    * Show the preference center
    */
   public show(): void {
-    if (!this.element) {
-      this.element = this.createDOM();
-      document.body.appendChild(this.element);
-      this.attachListeners();
+    const append = () => {
+      if (!this.element) {
+        this.element = this.createDOM();
+        document.body.appendChild(this.element);
+        this.attachListeners();
+      }
+
+      this.element.classList.add('is-visible');
+      this.trapFocus();
+
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+    };
+
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', append);
+      return;
     }
-
-    this.element.classList.add('is-visible');
-    this.trapFocus();
-
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
+    append();
   }
 
   /**
@@ -68,19 +77,42 @@ export class PreferenceCenter {
     const theme = this.config.theme || 'light';
     const position = this.config.preferencesPosition || 'center';
 
+    const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+    const colorStyle = safeColor
+      ? `--cc-primary: ${safeColor}; --cc-primary-hover: ${this.adjustColorBrightness(safeColor, -15)};`
+      : '';
+
+    const privacyLinkHtml = translations.privacyPolicyUrl
+      ? (() => {
+          const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
+          if (!safeUrl) return '';
+          return `
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="cc-privacy-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              ${escapeHtml(translations.privacyPolicyLabel || 'Politique de confidentialité')}
+            </a>
+          `;
+        })()
+      : '';
+
     const template = `
       <div
-        class="cc-modal cc-modal--${position}"
+        class="cc-modal cc-modal--${escapeHtml(position)}"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cc-modal-title"
-        data-theme="${theme}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <div class="cc-modal__overlay" data-action="close"></div>
         <div class="cc-modal__content">
-          <div class="cc-modal__header" style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor}; --cc-primary-hover: ${this.adjustColorBrightness(this.config.primaryColor, -15)};` : ''}">
+          <div class="cc-modal__header">
             <h2 id="cc-modal-title">
-              ${translations.preferencesTitle || translations.title || 'Préférences de cookies'}
+              ${escapeHtml(translations.preferencesTitle || translations.title || 'Préférences de cookies')}
             </h2>
             <button
               class="cc-modal__close"
@@ -99,29 +131,20 @@ export class PreferenceCenter {
 
           <div class="cc-modal__footer">
             <div class="cc-modal__footer-links">
-              ${translations.privacyPolicyUrl ? `
-                <a href="${translations.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer" class="cc-privacy-link">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  ${translations.privacyPolicyLabel || 'Politique de confidentialité'}
-                </a>
-              ` : ''}
+              ${privacyLinkHtml}
             </div>
             <div class="cc-modal__footer-actions">
               <button
                 class="cc-btn cc-btn--secondary"
                 data-action="reject"
               >
-                ${translations.rejectAll || 'Tout rejeter'}
+                ${escapeHtml(translations.essentialsOnly || 'Uniquement les essentiels')}
               </button>
               <button
                 class="cc-btn cc-btn--primary"
                 data-action="save"
               >
-                ${translations.savePreferences || 'Sauvegarder'}
+                ${escapeHtml(translations.savePreferences || 'Enregistrer mes choix')}
               </button>
             </div>
           </div>
@@ -151,16 +174,16 @@ export class PreferenceCenter {
             <label class="cc-toggle ${disabled ? 'cc-toggle--disabled' : ''}">
               <input
                 type="checkbox"
-                data-category="${key}"
+                data-category="${escapeHtml(key)}"
                 ${checked ? 'checked' : ''}
                 ${disabled ? 'disabled' : ''}
-                aria-label="${config.label} cookies"
+                aria-label="${escapeHtml(config.label)} cookies"
               >
               <span class="cc-toggle__slider"></span>
             </label>
             <div class="cc-category__info">
-              <h3>${config.label}</h3>
-              <p>${config.description}</p>
+              <h3>${escapeHtml(config.label)}</h3>
+              <p>${escapeHtml(config.description)}</p>
             </div>
           </div>
         </div>
@@ -174,7 +197,8 @@ export class PreferenceCenter {
    */
   private attachListeners(): void {
     this.element?.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
+      const target = (e.target as HTMLElement).closest('[data-action]') as HTMLElement | null;
+      if (!target) return;
       const action = target.getAttribute('data-action');
 
       if (action === 'close') {

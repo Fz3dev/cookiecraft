@@ -13,6 +13,7 @@ import { PreferenceCenter } from '../ui/PreferenceCenter';
 import { FloatingWidget } from '../ui/FloatingWidget';
 import { GTMConsentMode } from '../integrations/GTMConsentMode';
 import { DataLayerManager } from '../integrations/DataLayerManager';
+import { clearDeniedCookies } from '../utils/cookies';
 
 // Import CSS
 import '../styles/banner.css';
@@ -42,7 +43,7 @@ export class CookieConsent {
     );
 
     if (this.config.gtmConsentMode) {
-      this.gtmIntegration = new GTMConsentMode(new DataLayerManager());
+      this.gtmIntegration = new GTMConsentMode(new DataLayerManager(), this.config);
     }
 
     // Listen for preference center requests
@@ -89,6 +90,12 @@ export class CookieConsent {
       } else {
         // Apply stored consent
         this.applyConsent(storedConsent.categories);
+
+        // Restore GTM consent for returning visitors (within wait_for_update window)
+        if (this.gtmIntegration) {
+          this.gtmIntegration.updateConsent(storedConsent.categories);
+        }
+
         this.eventEmitter.emit('consent:load', storedConsent);
 
         // Show floating widget if enabled
@@ -124,13 +131,14 @@ export class CookieConsent {
    * Show preferences modal
    */
   public showPreferences(): void {
-    const currentConsent =
-      this.storageManager.load()?.categories || {
-        necessary: true,
-        analytics: false,
-        marketing: false,
-        preferences: false,
-      };
+    const stored = this.storageManager.load()?.categories;
+    // Default to all ON when no prior consent (user chose to customize)
+    const currentConsent = stored || {
+      necessary: true,
+      analytics: true,
+      marketing: true,
+      preferences: true,
+    };
 
     // Always recreate to get fresh state from storage
     if (this.preferenceCenter) {
@@ -159,13 +167,9 @@ export class CookieConsent {
 
     // Show floating widget after consent is given (delay to let banner hide)
     if (this.config.showWidget) {
-      console.log('⏳ Widget will show in 400ms...');
       setTimeout(() => {
-        console.log('🚀 Calling showFloatingWidget()');
         this.showFloatingWidget();
       }, 400); // Wait for banner hide animation
-    } else {
-      console.log('❌ Widget disabled in config');
     }
   }
 
@@ -182,6 +186,15 @@ export class CookieConsent {
   public reset(): void {
     this.storageManager.clear();
     this.scriptBlocker.block();
+
+    // Clear all non-essential cookies on reset
+    clearDeniedCookies({ necessary: true, analytics: false, marketing: false, preferences: false });
+
+    // Update GTM to denied state
+    if (this.gtmIntegration) {
+      this.gtmIntegration.updateConsent({ necessary: true, analytics: false, marketing: false });
+    }
+
     this.showBanner();
   }
 
@@ -234,10 +247,13 @@ export class CookieConsent {
   }
 
   /**
-   * Apply consent by unblocking scripts
+   * Apply consent by unblocking allowed scripts and clearing denied cookies
    */
   private applyConsent(categories: ConsentCategories): void {
     this.scriptBlocker.unblock(categories);
+
+    // CNIL/GDPR: actively delete cookies for denied categories
+    clearDeniedCookies(categories as unknown as Record<string, boolean>);
   }
 
   /**

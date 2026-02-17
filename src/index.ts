@@ -15,6 +15,3 @@ export type {
   GTMConsent,
   ConsentEvent,
 } from './types';
-
-// Default export for UMD
-export { CookieConsent as default } from './core/CookieConsent';

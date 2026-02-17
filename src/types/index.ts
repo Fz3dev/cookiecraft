@@ -21,6 +21,7 @@ export interface Translation {
   description?: string;
   acceptAll?: string;
   rejectAll?: string;
+  essentialsOnly?: string;
   customize?: string;
   savePreferences?: string;
   necessary?: string;
@@ -68,8 +69,11 @@ export interface ConsentConfig {
   language?: string;
   translations?: Translation;
 
-  // Integration
+  // Integration - Google Consent Mode v2
   gtmConsentMode?: boolean;
+  gtmWaitForUpdate?: number;          // ms to wait for CMP before tags fire (default: 500)
+  gtmUrlPassthrough?: boolean;        // Preserve ad click info via URL params when ad_storage denied
+  gtmAdsDataRedaction?: boolean;      // Redact ad-click identifiers when ad_storage denied
   cookieDomain?: string;
 
   // Accessibility
@@ -90,6 +94,7 @@ export interface ConsentRecord {
 }
 
 export interface GTMConsent {
+  [key: string]: 'granted' | 'denied';
   ad_storage: 'granted' | 'denied';
   ad_user_data: 'granted' | 'denied';
   ad_personalization: 'granted' | 'denied';

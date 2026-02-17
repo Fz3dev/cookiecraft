@@ -2,10 +2,14 @@
  * Banner Styles - Cookie Consent Banner
  */
 
-:root {
+/* Scoped CSS variables - avoids conflicts with host site (Webflow, etc.) */
+.cc-banner,
+.cc-modal,
+.cc-widget {
   /* Colors */
   --cc-primary: #0066cc;
   --cc-primary-hover: #0052a3;
+  --cc-primary-glow: color-mix(in srgb, var(--cc-primary) 30%, transparent);
   --cc-bg: #ffffff;
   --cc-text: #1a1a1a;
   --cc-text-secondary: #666666;
@@ -29,6 +33,15 @@
   /* Typography */
   --cc-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Reset - prevent host site styles from leaking into CookieCraft */
+.cc-banner *,
+.cc-modal *,
+.cc-widget * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 /* Banner Container */
@@ -130,7 +143,39 @@
   cursor: not-allowed;
 }
 
-/* Primary Button */
+/* Accept Button (CNIL: same visual weight as Reject) */
+.cc-btn--accept {
+  background: var(--cc-primary);
+  color: #ffffff;
+}
+
+.cc-btn--accept:hover:not(:disabled) {
+  background: var(--cc-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--cc-primary-glow);
+}
+
+.cc-btn--accept:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Reject Button (CNIL: same visual weight as Accept - symmetric design) */
+.cc-btn--reject {
+  background: var(--cc-text);
+  color: #ffffff;
+}
+
+.cc-btn--reject:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cc-btn--reject:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Primary Button (used in modals) */
 .cc-btn--primary {
   background: var(--cc-primary);
   color: #ffffff;
@@ -139,14 +184,14 @@
 .cc-btn--primary:hover:not(:disabled) {
   background: var(--cc-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 4px 12px var(--cc-primary-glow);
 }
 
 .cc-btn--primary:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Secondary Button */
+/* Secondary Button (used in modals) */
 .cc-btn--secondary {
   background: #f3f4f6;
   color: var(--cc-text);
@@ -161,15 +206,16 @@
   transform: translateY(0);
 }
 
-/* Tertiary Button (Outline) */
+/* Tertiary Button (Customize - intentionally less prominent) */
 .cc-btn--tertiary {
   background: transparent;
-  color: var(--cc-primary);
-  border: 1px solid var(--cc-primary);
+  color: var(--cc-text-secondary);
+  border: 1px solid var(--cc-border);
 }
 
 .cc-btn--tertiary:hover:not(:disabled) {
-  background: rgba(0, 102, 204, 0.05);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--cc-text);
   transform: translateY(-1px);
 }
 
@@ -319,6 +365,16 @@
   .cc-banner[data-theme='auto'] .cc-btn--secondary:hover:not(:disabled) {
     background: #333333;
   }
+
+  .cc-banner[data-theme='auto'] .cc-btn--reject {
+    background: #ffffff;
+    color: #1a1a1a;
+  }
+
+  .cc-banner[data-theme='auto'] .cc-btn--tertiary {
+    border-color: #555555;
+    color: #a0a0a0;
+  }
 }
 
 /* Explicit Dark Theme */
@@ -340,4 +396,14 @@
 
 .cc-banner[data-theme='dark'] .cc-btn--secondary:hover:not(:disabled) {
   background: #333333;
+}
+
+.cc-banner[data-theme='dark'] .cc-btn--reject {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.cc-banner[data-theme='dark'] .cc-btn--tertiary {
+  border-color: #555555;
+  color: #a0a0a0;
 }

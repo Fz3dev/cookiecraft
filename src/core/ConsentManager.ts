@@ -3,6 +3,7 @@
  */
 
 import { ConsentConfig, ConsentCategories, ConsentRecord } from '../types';
+import { StorageManager } from './StorageManager';
 
 export class ConsentManager {
   private consent!: ConsentRecord;
@@ -71,7 +72,7 @@ export class ConsentManager {
   private createConsentRecord(categories: ConsentCategories): ConsentRecord {
     const now = new Date();
     const expiryDate = new Date(now);
-    expiryDate.setMonth(expiryDate.getMonth() + 13); // 13 months per GDPR
+    expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
 
     return {
       version: this.config.revision,

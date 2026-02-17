@@ -4,6 +4,7 @@
 
 import { ConsentConfig, ConsentCategories } from '../types';
 import { EventEmitter } from '../core/EventEmitter';
+import { escapeHtml, sanitizeUrl, sanitizeColor } from '../utils/sanitize';
 
 export class Banner {
   private config: ConsentConfig;
@@ -19,25 +20,35 @@ export class Banner {
    * Show the banner
    */
   public show(): void {
-    if (!this.element) {
-      this.element = this.createDOM();
-      document.body.appendChild(this.element);
-      this.attachListeners();
+    const append = () => {
+      if (!this.element) {
+        this.element = this.createDOM();
+        document.body.appendChild(this.element);
+        this.attachListeners();
+      }
+
+      // Trigger animation
+      requestAnimationFrame(() => {
+        this.element?.classList.add('is-visible');
+      });
+
+      // Focus first button for accessibility
+      const firstButton = this.element?.querySelector('button');
+      firstButton?.focus();
+
+      // Disable page interaction if configured
+      if (this.config.disablePageInteraction) {
+        document.body.style.overflow = 'hidden';
+      }
+    };
+
+    // Wait for body if not yet available
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', append);
+      return;
     }
 
-    // Trigger animation
-    requestAnimationFrame(() => {
-      this.element?.classList.add('is-visible');
-    });
-
-    // Focus first button for accessibility
-    const firstButton = this.element?.querySelector('button');
-    firstButton?.focus();
-
-    // Disable page interaction if configured
-    if (this.config.disablePageInteraction) {
-      document.body.style.overflow = 'hidden';
-    }
+    append();
   }
 
   /**
@@ -76,19 +87,22 @@ export class Banner {
     const layout = this.config.layout || 'bar';
     const backdropBlur = this.config.backdropBlur !== false;
 
+    const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+    const colorStyle = safeColor ? `--cc-primary: ${safeColor};` : '';
+
     const template = `
       <div
-        class="cc-banner cc-banner--${position} cc-banner--${layout} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
+        class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
         role="region"
         aria-label="Cookie consent"
         aria-live="polite"
-        data-theme="${theme}"
-        style="${this.config.primaryColor ? `--cc-primary: ${this.config.primaryColor};` : ''}"
+        data-theme="${escapeHtml(theme)}"
+        style="${colorStyle}"
       >
         <div class="cc-banner__container">
           <div class="cc-banner__content">
             <h2 class="cc-banner__title">
-              ${translations.title || '🍪 Nous utilisons des cookies'}
+              ${escapeHtml(translations.title || '🍪 Nous utilisons des cookies')}
             </h2>
             <p class="cc-banner__description">
               ${this.getDescriptionHTML()}
@@ -96,25 +110,25 @@ export class Banner {
           </div>
           <div class="cc-banner__actions">
             <button
-              class="cc-btn cc-btn--secondary"
-              data-action="reject"
-              aria-label="Rejeter tous les cookies"
-            >
-              ${translations.rejectAll || 'Tout rejeter'}
-            </button>
-            <button
               class="cc-btn cc-btn--tertiary"
               data-action="customize"
-              aria-label="Personnaliser les préférences"
+              aria-label="${escapeHtml(translations.customize || 'Personnaliser')}"
             >
-              ${translations.customize || 'Personnaliser'}
+              ${escapeHtml(translations.customize || 'Personnaliser')}
             </button>
             <button
-              class="cc-btn cc-btn--primary"
-              data-action="accept"
-              aria-label="Accepter tous les cookies"
+              class="cc-btn cc-btn--reject"
+              data-action="reject"
+              aria-label="${escapeHtml(translations.rejectAll || 'Tout refuser')}"
             >
-              ${translations.acceptAll || 'Tout accepter'}
+              ${escapeHtml(translations.rejectAll || 'Tout refuser')}
+            </button>
+            <button
+              class="cc-btn cc-btn--accept"
+              data-action="accept"
+              aria-label="${escapeHtml(translations.acceptAll || 'Tout accepter')}"
+            >
+              ${escapeHtml(translations.acceptAll || 'Tout accepter')}
             </button>
           </div>
         </div>
@@ -131,7 +145,8 @@ export class Banner {
    */
   private attachListeners(): void {
     this.element?.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
+      const target = (e.target as HTMLElement).closest('[data-action]') as HTMLElement | null;
+      if (!target) return;
       const action = target.getAttribute('data-action');
 
       switch (action) {
@@ -210,11 +225,14 @@ export class Banner {
   private getDescriptionHTML(): string {
     const translations = this.config.translations || {};
     const defaultDescription = 'Pour améliorer votre expérience sur notre site, nous utilisons des cookies. Vous pouvez choisir les cookies que vous acceptez.';
-    const description = translations.description || defaultDescription;
+    const description = escapeHtml(translations.description || defaultDescription);
 
     if (translations.privacyPolicyUrl) {
-      const linkLabel = translations.privacyPolicyLabel || 'Politique de confidentialité';
-      return `${description} <a href="${translations.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
+      const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
+      if (safeUrl) {
+        const linkLabel = escapeHtml(translations.privacyPolicyLabel || 'Politique de confidentialité');
+        return `${description} <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
+      }
     }
 
     return description;

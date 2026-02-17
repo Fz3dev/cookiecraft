@@ -43,6 +43,7 @@
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   transform: scale(0.9);
@@ -57,7 +58,6 @@
 .cc-modal__header {
   padding: 2rem 1.5rem;
   background: linear-gradient(135deg, var(--cc-primary) 0%, var(--cc-primary-hover) 100%);
-  border-radius: var(--cc-border-radius) var(--cc-border-radius) 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -317,22 +317,39 @@
   transform: translateX(0);
 }
 
-/* Responsive */
+/* Responsive - Bottom sheet style on mobile */
 @media (max-width: 640px) {
+  .cc-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
   .cc-modal__content {
-    max-height: 100vh;
-    border-radius: 0;
+    max-height: 85vh;
+    border-radius: 16px 16px 0 0;
+    width: 100%;
+    max-width: 100%;
+    transform: translateY(100%);
+  }
+
+  .cc-modal.is-visible .cc-modal__content {
+    transform: translateY(0);
+  }
+
+  .cc-modal__body {
+    padding: 1rem 1.25rem;
   }
 
   .cc-modal__footer {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem 1.25rem 1.5rem;
   }
 
   .cc-modal__footer-links {
     order: 2;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 
   .cc-modal__footer-actions {
