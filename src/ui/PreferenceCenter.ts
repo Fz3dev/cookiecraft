@@ -12,6 +12,7 @@ export class PreferenceCenter {
   private element: HTMLElement | null = null;
   private eventEmitter: EventEmitter;
   private currentConsent: ConsentCategories;
+  private previousActiveElement: HTMLElement | null = null;
 
   constructor(
     config: ConsentConfig,
@@ -29,6 +30,7 @@ export class PreferenceCenter {
   public show(): void {
     const append = () => {
       if (!this.element) {
+        this.previousActiveElement = document.activeElement as HTMLElement | null;
         this.element = this.createDOM();
         document.body.appendChild(this.element);
         this.attachListeners();
@@ -37,7 +39,6 @@ export class PreferenceCenter {
       this.element.classList.add('is-visible');
       this.trapFocus();
 
-      // Prevent body scroll
       document.body.style.overflow = 'hidden';
     };
 
@@ -54,6 +55,12 @@ export class PreferenceCenter {
   public hide(): void {
     this.element?.classList.remove('is-visible');
     document.body.style.overflow = '';
+
+    // Restore focus to triggering element
+    if (this.previousActiveElement && document.contains(this.previousActiveElement)) {
+      this.previousActiveElement.focus();
+      this.previousActiveElement = null;
+    }
 
     setTimeout(() => {
       this.destroy();
@@ -92,7 +99,7 @@ export class PreferenceCenter {
                 <polyline points="15 3 21 3 21 9"/>
                 <line x1="10" y1="14" x2="21" y2="3"/>
               </svg>
-              ${escapeHtml(translations.privacyPolicyLabel || 'Politique de confidentialité')}
+              ${escapeHtml(translations.privacyPolicyLabel || 'Privacy Policy')}
             </a>
           `;
         })()
@@ -111,7 +118,7 @@ export class PreferenceCenter {
         <div class="cc-modal__content">
           <div class="cc-modal__header">
             <h2 id="cc-modal-title">
-              ${escapeHtml(translations.preferencesTitle || translations.title || 'Préférences de cookies')}
+              ${escapeHtml(translations.preferencesTitle || translations.title || 'Cookie Preferences')}
             </h2>
           </div>
 
@@ -128,13 +135,13 @@ export class PreferenceCenter {
                 class="cc-btn cc-btn--secondary"
                 data-action="reject"
               >
-                ${escapeHtml(translations.essentialsOnly || 'Uniquement les essentiels')}
+                ${escapeHtml(translations.essentialsOnly || 'Essentials only')}
               </button>
               <button
                 class="cc-btn cc-btn--primary"
                 data-action="save"
               >
-                ${escapeHtml(translations.savePreferences || 'Enregistrer mes choix')}
+                ${escapeHtml(translations.savePreferences || 'Save preferences')}
               </button>
             </div>
           </div>
@@ -155,7 +162,7 @@ export class PreferenceCenter {
 
     return categories
       .map(([key, config]) => {
-        const checked = this.currentConsent[key as keyof ConsentCategories];
+        const checked = this.currentConsent[key] === true;
         const disabled = config.readOnly;
 
         return `
@@ -197,7 +204,6 @@ export class PreferenceCenter {
         this.handleRejectAll();
       }
     });
-
   }
 
   /**
@@ -205,23 +211,26 @@ export class PreferenceCenter {
    */
   private handleSave(): void {
     const checkboxes = this.element?.querySelectorAll('input[data-category]');
-    const categories: ConsentCategories = {
-      necessary: true,
-      analytics: false,
-      marketing: false,
-    };
 
+    // Initialize all configured categories to false
+    const categories: ConsentCategories = { necessary: true, analytics: false, marketing: false };
+    for (const key of Object.keys(this.config.categories)) {
+      if (key !== 'necessary') {
+        categories[key] = false;
+      }
+    }
+
+    // Override with actual checkbox values
     checkboxes?.forEach((checkbox) => {
       if (checkbox instanceof HTMLInputElement) {
         const category = checkbox.getAttribute('data-category');
         if (category) {
-          categories[category as keyof ConsentCategories] = checkbox.checked;
+          categories[category] = checkbox.checked;
         }
       }
     });
 
     this.eventEmitter.emit('consent:update', categories);
-    this.config.onChange?.(categories);
     this.hide();
   }
 
@@ -229,15 +238,10 @@ export class PreferenceCenter {
    * Handle reject all
    */
   private handleRejectAll(): void {
-    const necessaryOnly: ConsentCategories = {
-      necessary: true,
-      analytics: false,
-      marketing: false,
-    };
+    const necessaryOnly: ConsentCategories = { necessary: true, analytics: false, marketing: false };
 
-    // Only add preferences if it's configured
-    if (this.config.categories?.preferences) {
-      necessaryOnly.preferences = false;
+    for (const key of Object.keys(this.config.categories)) {
+      if (key !== 'necessary') necessaryOnly[key] = false;
     }
 
     this.eventEmitter.emit('consent:reject', necessaryOnly);
@@ -257,10 +261,8 @@ export class PreferenceCenter {
     const firstFocusable = focusableElements[0] as HTMLElement;
     const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-    // Focus first element
     firstFocusable?.focus();
 
-    // Trap focus
     this.element?.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstFocusable) {
@@ -273,8 +275,4 @@ export class PreferenceCenter {
       }
     });
   }
-
-  /**
-   * Adjust color brightness for hover effect
-   */
 }

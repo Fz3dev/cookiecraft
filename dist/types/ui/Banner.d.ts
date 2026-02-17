@@ -7,6 +7,8 @@ export declare class Banner {
     private config;
     private element;
     private eventEmitter;
+    private hideTimeout;
+    private previousActiveElement;
     constructor(config: ConsentConfig, eventEmitter: EventEmitter);
     /**
      * Show the banner
@@ -40,6 +42,10 @@ export declare class Banner {
      * Handle customize action
      */
     private handleCustomize;
+    /**
+     * Trap focus within banner (when disablePageInteraction is true)
+     */
+    private trapFocus;
     /**
      * Generate description HTML with privacy policy link
      */

@@ -94,9 +94,11 @@ TypeScript, Rollup, PostCSS (autoprefixer + cssnano), Jest, size-limit. No runti
 
 1. Bump version in `package.json`
 2. `npm run build`
-3. `npm publish` (uses `.npmrc` token or automation token)
-4. `git add && git commit && git push`
-5. Purge jsdelivr CDN (version resolution + JS + CSS files)
+3. `npm test` — vérifier que tous les tests passent
+4. `npm publish` (uses `.npmrc` token or automation token)
+5. `git add && git commit && git push`
+6. Purge jsdelivr CDN (version resolution + JS + CSS files)
+7. **Mettre à jour la description du repo GitHub** avec la nouvelle version via `gh repo edit --description "..."`
 
 ### Tools
 

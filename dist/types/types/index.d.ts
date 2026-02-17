@@ -6,6 +6,7 @@ export interface ConsentCategories {
     analytics: boolean;
     marketing: boolean;
     preferences?: boolean;
+    [key: string]: boolean | undefined;
 }
 export interface CategoryConfig {
     enabled: boolean;
@@ -35,12 +36,7 @@ export interface ConsentConfig {
     mode: 'opt-in' | 'opt-out';
     autoShow: boolean;
     revision: number;
-    categories: {
-        necessary: CategoryConfig;
-        analytics: CategoryConfig;
-        marketing: CategoryConfig;
-        preferences?: CategoryConfig;
-    };
+    categories: Record<string, CategoryConfig>;
     theme?: 'light' | 'dark' | 'auto';
     position?: 'bottom' | 'top' | 'center' | 'bottom-left' | 'bottom-right';
     layout?: 'bar' | 'box' | 'floating';
@@ -67,7 +63,6 @@ export interface ConsentRecord {
     version: number;
     timestamp: string;
     categories: ConsentCategories;
-    userAgent: string;
     expiresAt: string;
 }
 export interface GTMConsent {
@@ -80,6 +75,7 @@ export interface GTMConsent {
     personalization_storage: 'granted' | 'denied';
     security_storage: 'granted' | 'denied';
 }
+export type EventCallback = (...args: any[]) => void;
 export type ConsentEvent = 'consent:init' | 'consent:show' | 'consent:hide' | 'consent:accept' | 'consent:reject' | 'consent:update' | 'consent:load' | 'consent:expire' | 'preferences:show' | 'preferences:hide' | 'script:activated';
 declare global {
     interface Window {

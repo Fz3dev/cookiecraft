@@ -47,8 +47,11 @@ export function sanitizeColor(color: string): string {
   if (/^rgba?\(\s*[\d\s,./%]+\)$/.test(trimmed)) return trimmed;
   // Allow hsl/hsla
   if (/^hsla?\(\s*[\d\s,./%deg]+\)$/.test(trimmed)) return trimmed;
-  // Allow CSS named colors (basic set)
-  if (/^[a-zA-Z]+$/.test(trimmed)) return trimmed;
+  // Allow CSS named colors (basic set) but block CSS keywords that could be abused
+  const CSS_KEYWORDS = ['inherit', 'initial', 'unset', 'revert', 'revert-layer'];
+  if (/^[a-zA-Z]+$/.test(trimmed) && !CSS_KEYWORDS.includes(trimmed.toLowerCase())) {
+    return trimmed;
+  }
   return '';
 }
 

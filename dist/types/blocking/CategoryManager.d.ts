@@ -19,6 +19,7 @@ export declare class CategoryManager {
     isAllowed(category: string, consent: ConsentCategories): boolean;
     /**
      * Initialize default URL patterns for common tracking services
+     * Note: GTM is NOT auto-categorized — it should be managed via GTM Consent Mode v2
      */
     private initializeDefaultPatterns;
 }

@@ -54,7 +54,11 @@ export class StorageManager {
    * Clear consent record from localStorage
    */
   public clear(): void {
-    localStorage.removeItem(StorageManager.STORAGE_KEY);
+    try {
+      localStorage.removeItem(StorageManager.STORAGE_KEY);
+    } catch (e) {
+      console.error('Failed to clear consent:', e);
+    }
   }
 
   /**
@@ -62,6 +66,7 @@ export class StorageManager {
    */
   public isExpired(consent: ConsentRecord): boolean {
     const expiry = new Date(consent.expiresAt);
+    if (isNaN(expiry.getTime())) return true;
     return expiry < new Date();
   }
 
@@ -74,7 +79,6 @@ export class StorageManager {
       typeof data.version === 'number' &&
       typeof data.timestamp === 'string' &&
       typeof data.categories === 'object' &&
-      typeof data.userAgent === 'string' &&
       typeof data.expiresAt === 'string'
     );
   }
@@ -94,11 +98,21 @@ export class StorageManager {
       const expiryDate = new Date(now);
       expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
 
+      // Coerce category values to booleans
+      const rawCategories = record.categories as Record<string, unknown>;
+      const categories: ConsentCategories = {
+        necessary: rawCategories.necessary === true,
+        analytics: rawCategories.analytics === true,
+        marketing: rawCategories.marketing === true,
+      };
+      if ('preferences' in rawCategories) {
+        categories.preferences = rawCategories.preferences === true;
+      }
+
       return {
         version: typeof record.version === 'number' ? record.version : 1,
         timestamp: typeof record.timestamp === 'string' ? record.timestamp : now.toISOString(),
-        categories: record.categories as ConsentCategories,
-        userAgent: typeof record.userAgent === 'string' ? record.userAgent : navigator.userAgent,
+        categories,
         expiresAt: typeof record.expiresAt === 'string' ? record.expiresAt : expiryDate.toISOString(),
       };
     }

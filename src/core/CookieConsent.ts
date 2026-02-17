@@ -2,7 +2,7 @@
  * CookieConsent - Main orchestrator class
  */
 
-import { ConsentConfig, ConsentCategories } from '../types';
+import { ConsentConfig, ConsentCategories, ConsentRecord, ConsentEvent, EventCallback } from '../types';
 import { ConsentManager } from './ConsentManager';
 import { StorageManager } from './StorageManager';
 import { EventEmitter } from './EventEmitter';
@@ -31,8 +31,19 @@ export class CookieConsent {
   private preferenceCenter: PreferenceCenter | null = null;
   private floatingWidget: FloatingWidget | null = null;
   private gtmIntegration: GTMConsentMode | null = null;
+  private hideTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(config: ConsentConfig) {
+    // SSR guard
+    if (typeof window === 'undefined') {
+      this.config = config as ConsentConfig;
+      this.consentManager = null as any;
+      this.storageManager = null as any;
+      this.eventEmitter = null as any;
+      this.scriptBlocker = null as any;
+      return;
+    }
+
     this.config = this.validateConfig(config);
     this.consentManager = new ConsentManager(this.config);
     this.storageManager = new StorageManager();
@@ -46,22 +57,24 @@ export class CookieConsent {
       this.gtmIntegration = new GTMConsentMode(new DataLayerManager(), this.config);
     }
 
-    // Listen for preference center requests
-    this.eventEmitter.on('preferences:show', () => {
-      this.showPreferences();
-    });
-
-    // Listen for consent updates
+    // Listen for consent events — callbacks are fired AFTER consent is persisted
     this.eventEmitter.on('consent:accept', (categories: ConsentCategories) => {
       this.updateConsent(categories);
+      this.config.onAccept?.(categories);
     });
 
     this.eventEmitter.on('consent:reject', (categories: ConsentCategories) => {
       this.updateConsent(categories);
+      this.config.onReject?.();
     });
 
     this.eventEmitter.on('consent:update', (categories: ConsentCategories) => {
       this.updateConsent(categories);
+      this.config.onChange?.(categories);
+    });
+
+    this.eventEmitter.on('preferences:show', () => {
+      this.showPreferences();
     });
   }
 
@@ -69,6 +82,8 @@ export class CookieConsent {
    * Initialize the cookie consent system
    */
   public init(): void {
+    if (typeof window === 'undefined') return;
+
     // 1. Start blocking scripts immediately
     this.scriptBlocker.init();
 
@@ -81,37 +96,30 @@ export class CookieConsent {
     const storedConsent = this.storageManager.load();
 
     if (storedConsent && !this.storageManager.isExpired(storedConsent)) {
-      // Valid consent exists
       if (this.consentManager.needsUpdate(storedConsent)) {
-        // Policy updated, show banner again
         if (this.config.autoShow) {
           this.showBanner();
         }
       } else {
-        // Apply stored consent
         this.applyConsent(storedConsent.categories);
 
-        // Restore GTM consent for returning visitors (within wait_for_update window)
         if (this.gtmIntegration) {
           this.gtmIntegration.updateConsent(storedConsent.categories);
         }
 
         this.eventEmitter.emit('consent:load', storedConsent);
 
-        // Show floating widget if enabled
         if (this.config.showWidget) {
           this.showFloatingWidget();
         }
       }
     } else {
-      // No consent or expired
       if (this.config.autoShow) {
         this.showBanner();
       }
     }
 
-    // Store instance globally so it won't be garbage collected
-    // when used without a variable (e.g. new CookieConsent({}).init())
+    // Store instance globally
     window.cookieConsent = this;
 
     this.eventEmitter.emit('consent:init');
@@ -136,15 +144,20 @@ export class CookieConsent {
    */
   public showPreferences(): void {
     const stored = this.storageManager.load()?.categories;
-    // Default to all ON when no prior consent (user chose to customize)
-    const currentConsent = stored || {
+    // Default to all ON when no prior consent
+    const currentConsent: ConsentCategories = stored || {
       necessary: true,
       analytics: true,
       marketing: true,
-      preferences: true,
     };
 
-    // Always recreate to get fresh state from storage
+    // Add any configured categories not in current consent
+    for (const key of Object.keys(this.config.categories)) {
+      if (!(key in currentConsent)) {
+        currentConsent[key] = key === 'necessary';
+      }
+    }
+
     if (this.preferenceCenter) {
       this.preferenceCenter.destroy();
     }
@@ -169,18 +182,18 @@ export class CookieConsent {
       this.gtmIntegration.updateConsent(categories);
     }
 
-    // Show floating widget after consent is given (delay to let banner hide)
+    // Show floating widget after consent is given
     if (this.config.showWidget) {
       setTimeout(() => {
         this.showFloatingWidget();
-      }, 400); // Wait for banner hide animation
+      }, 400);
     }
   }
 
   /**
    * Get current consent
    */
-  public getConsent() {
+  public getConsent(): ConsentRecord | null {
     return this.storageManager.load();
   }
 
@@ -191,28 +204,32 @@ export class CookieConsent {
     this.storageManager.clear();
     this.scriptBlocker.block();
 
-    // Clear all non-essential cookies on reset
-    clearDeniedCookies({ necessary: true, analytics: false, marketing: false, preferences: false });
-
-    // Update GTM to denied state
-    if (this.gtmIntegration) {
-      this.gtmIntegration.updateConsent({ necessary: true, analytics: false, marketing: false });
+    const denied: ConsentCategories = { necessary: true, analytics: false, marketing: false };
+    for (const key of Object.keys(this.config.categories)) {
+      if (key !== 'necessary') denied[key] = false;
     }
 
+    clearDeniedCookies(denied as Record<string, boolean>);
+
+    if (this.gtmIntegration) {
+      this.gtmIntegration.updateConsent(denied);
+    }
+
+    this.config.onReject?.();
     this.showBanner();
   }
 
   /**
    * Register event handler
    */
-  public on(event: string, callback: Function): void {
+  public on(event: ConsentEvent, callback: EventCallback): void {
     this.eventEmitter.on(event, callback);
   }
 
   /**
    * Unregister event handler
    */
-  public off(event: string, callback: Function): void {
+  public off(event: ConsentEvent, callback: EventCallback): void {
     this.eventEmitter.off(event, callback);
   }
 
@@ -220,6 +237,10 @@ export class CookieConsent {
    * Destroy and cleanup all UI elements
    */
   public destroy(): void {
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
     this.banner?.destroy();
     this.banner = null;
     this.preferenceCenter?.destroy();
@@ -227,6 +248,10 @@ export class CookieConsent {
     this.floatingWidget?.destroy();
     this.floatingWidget = null;
     this.scriptBlocker?.destroy();
+    this.eventEmitter.clear();
+    if (window.cookieConsent === this) {
+      window.cookieConsent = undefined;
+    }
   }
 
   /**
@@ -255,9 +280,7 @@ export class CookieConsent {
    */
   private applyConsent(categories: ConsentCategories): void {
     this.scriptBlocker.unblock(categories);
-
-    // CNIL/GDPR: actively delete cookies for denied categories
-    clearDeniedCookies(categories as unknown as Record<string, boolean>);
+    clearDeniedCookies(categories as Record<string, boolean>);
   }
 
   /**
@@ -270,26 +293,26 @@ export class CookieConsent {
         necessary: {
           enabled: true,
           readOnly: true,
-          label: 'Nécessaires',
-          description: 'Ces cookies sont indispensables au fonctionnement du site.',
+          label: 'Essential',
+          description: 'Required for the website to function properly.',
         },
         analytics: {
           enabled: true,
           readOnly: false,
-          label: 'Analytiques',
-          description: 'Ces cookies nous aident à comprendre comment vous utilisez le site.',
+          label: 'Analytics',
+          description: 'Help us understand how you use our site.',
         },
         marketing: {
           enabled: true,
           readOnly: false,
           label: 'Marketing',
-          description: 'Ces cookies sont utilisés pour vous proposer des publicités pertinentes.',
+          description: 'Used to deliver relevant advertisements.',
         },
       },
       mode: config.mode || 'opt-in',
       autoShow: config.autoShow !== undefined ? config.autoShow : true,
       revision: config.revision || 1,
-      gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true,
+      gtmConsentMode: config.gtmConsentMode || false,
       disablePageInteraction: config.disablePageInteraction || false,
       theme: config.theme || 'light',
       position: config.position || 'bottom-left',

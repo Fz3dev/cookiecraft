@@ -7,6 +7,7 @@ export interface ConsentCategories {
   analytics: boolean;
   marketing: boolean;
   preferences?: boolean;
+  [key: string]: boolean | undefined;
 }
 
 export interface CategoryConfig {
@@ -42,12 +43,7 @@ export interface ConsentConfig {
   revision: number;
 
   // Categories
-  categories: {
-    necessary: CategoryConfig;
-    analytics: CategoryConfig;
-    marketing: CategoryConfig;
-    preferences?: CategoryConfig;
-  };
+  categories: Record<string, CategoryConfig>;
 
   // UI customization
   theme?: 'light' | 'dark' | 'auto';
@@ -61,9 +57,9 @@ export interface ConsentConfig {
   preferencesPosition?: 'center' | 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
 
   // Floating widget
-  showWidget?: boolean;                  // Show permanent cookie settings button
+  showWidget?: boolean;
   widgetPosition?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
-  widgetStyle?: 'compact' | 'full';      // compact = icon only, full = icon + text
+  widgetStyle?: 'compact' | 'full';
 
   // Content
   language?: string;
@@ -71,9 +67,9 @@ export interface ConsentConfig {
 
   // Integration - Google Consent Mode v2
   gtmConsentMode?: boolean;
-  gtmWaitForUpdate?: number;          // ms to wait for CMP before tags fire (default: 500)
-  gtmUrlPassthrough?: boolean;        // Preserve ad click info via URL params when ad_storage denied
-  gtmAdsDataRedaction?: boolean;      // Redact ad-click identifiers when ad_storage denied
+  gtmWaitForUpdate?: number;
+  gtmUrlPassthrough?: boolean;
+  gtmAdsDataRedaction?: boolean;
   cookieDomain?: string;
 
   // Accessibility
@@ -89,7 +85,6 @@ export interface ConsentRecord {
   version: number;
   timestamp: string;
   categories: ConsentCategories;
-  userAgent: string;
   expiresAt: string;
 }
 
@@ -103,6 +98,8 @@ export interface GTMConsent {
   personalization_storage: 'granted' | 'denied';
   security_storage: 'granted' | 'denied';
 }
+
+export type EventCallback = (...args: any[]) => void;
 
 export type ConsentEvent =
   | 'consent:init'

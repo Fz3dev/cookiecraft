@@ -86,7 +86,7 @@ export class FloatingWidget {
       <div
         class="cc-widget cc-widget--${escapeHtml(widgetPosition)} cc-widget--${escapeHtml(widgetStyle)}"
         role="button"
-        aria-label="${escapeHtml(translations.cookieSettings || 'Paramètres des cookies')}"
+        aria-label="${escapeHtml(translations.cookieSettings || 'Cookie settings')}"
         tabindex="0"
         data-theme="${escapeHtml(theme)}"
         style="${colorStyle}"

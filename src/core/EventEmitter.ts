@@ -2,13 +2,15 @@
  * EventEmitter - Simple pub/sub pattern for internal and external events
  */
 
+import { EventCallback } from '../types';
+
 export class EventEmitter {
-  private events: Map<string, Set<Function>> = new Map();
+  private events: Map<string, Set<EventCallback>> = new Map();
 
   /**
    * Register an event handler
    */
-  public on(event: string, callback: Function): void {
+  public on(event: string, callback: EventCallback): void {
     if (!this.events.has(event)) {
       this.events.set(event, new Set());
     }
@@ -18,7 +20,7 @@ export class EventEmitter {
   /**
    * Unregister an event handler
    */
-  public off(event: string, callback: Function): void {
+  public off(event: string, callback: EventCallback): void {
     if (this.events.has(event)) {
       this.events.get(event)!.delete(callback);
     }

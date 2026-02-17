@@ -1,7 +1,7 @@
 /**
  * CookieConsent - Main orchestrator class
  */
-import { ConsentConfig, ConsentCategories } from '../types';
+import { ConsentConfig, ConsentCategories, ConsentRecord, ConsentEvent, EventCallback } from '../types';
 import '../styles/banner.css';
 import '../styles/animations.css';
 import '../styles/preferences.css';
@@ -16,6 +16,7 @@ export declare class CookieConsent {
     private preferenceCenter;
     private floatingWidget;
     private gtmIntegration;
+    private hideTimeout;
     constructor(config: ConsentConfig);
     /**
      * Initialize the cookie consent system
@@ -40,7 +41,7 @@ export declare class CookieConsent {
     /**
      * Get current consent
      */
-    getConsent(): import("../types").ConsentRecord | null;
+    getConsent(): ConsentRecord | null;
     /**
      * Reset consent (clear stored data and show banner)
      */
@@ -48,11 +49,11 @@ export declare class CookieConsent {
     /**
      * Register event handler
      */
-    on(event: string, callback: Function): void;
+    on(event: ConsentEvent, callback: EventCallback): void;
     /**
      * Unregister event handler
      */
-    off(event: string, callback: Function): void;
+    off(event: ConsentEvent, callback: EventCallback): void;
     /**
      * Destroy and cleanup all UI elements
      */

@@ -9,7 +9,7 @@
   /* Colors */
   --cc-primary: #1a1a1a;
   --cc-primary-hover: #333333;
-  --cc-primary-glow: color-mix(in srgb, var(--cc-primary) 30%, transparent);
+  --cc-primary-glow: rgba(0, 0, 0, 0.12);
   --cc-bg: #ffffff;
   --cc-text: #1a1a1a;
   --cc-text-secondary: #666666;
@@ -50,7 +50,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 2147483647;
   background: var(--cc-bg);
   box-shadow: var(--cc-shadow);
   padding: var(--cc-padding);
@@ -369,11 +369,6 @@
     background: #333333;
   }
 
-  .cc-banner[data-theme='auto'] .cc-btn--reject {
-    background: #ffffff;
-    color: #1a1a1a;
-  }
-
   .cc-banner[data-theme='auto'] .cc-btn--tertiary {
     border-color: #555555;
     color: #a0a0a0;
@@ -399,11 +394,6 @@
 
 .cc-banner[data-theme='dark'] .cc-btn--secondary:hover:not(:disabled) {
   background: #333333;
-}
-
-.cc-banner[data-theme='dark'] .cc-btn--reject {
-  background: #ffffff;
-  color: #1a1a1a;
 }
 
 .cc-banner[data-theme='dark'] .cc-btn--tertiary {

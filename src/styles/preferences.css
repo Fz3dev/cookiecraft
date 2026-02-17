@@ -73,34 +73,6 @@
   letter-spacing: -0.01em;
 }
 
-.cc-modal__close {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  padding: 0.375rem;
-  cursor: pointer;
-  color: #ffffff;
-  transition: all 0.2s ease;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cc-modal__close svg {
-  width: 18px;
-  height: 18px;
-}
-
-.cc-modal__close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-}
-
-.cc-modal__close:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
-}
-
 /* Modal Body */
 .cc-modal__body {
   padding: 1rem 1.25rem;
@@ -276,9 +248,6 @@
     background: #333333;
   }
 
-  .cc-modal[data-theme='auto'] .cc-modal__close:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
 }
 
 .cc-modal[data-theme='dark'] .cc-modal__content {
@@ -314,9 +283,6 @@
   background: #333333;
 }
 
-.cc-modal[data-theme='dark'] .cc-modal__close:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
 
 /* Position Variants */
 /* Center is the default, already styled above */

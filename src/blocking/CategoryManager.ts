@@ -8,7 +8,6 @@ export class CategoryManager {
   private categories: Map<string, string[]> = new Map();
 
   constructor() {
-    // Initialize with common patterns
     this.initializeDefaultPatterns();
   }
 
@@ -46,16 +45,16 @@ export class CategoryManager {
    * Check if a category is allowed based on consent
    */
   public isAllowed(category: string, consent: ConsentCategories): boolean {
-    return consent[category as keyof ConsentCategories] === true;
+    return consent[category] === true;
   }
 
   /**
    * Initialize default URL patterns for common tracking services
+   * Note: GTM is NOT auto-categorized — it should be managed via GTM Consent Mode v2
    */
   private initializeDefaultPatterns(): void {
     this.categories.set('analytics', [
       'google-analytics.com',
-      'googletagmanager.com',
       'analytics.google.com',
       'plausible.io',
       'matomo.org',
@@ -66,6 +65,7 @@ export class CategoryManager {
     ]);
 
     this.categories.set('marketing', [
+      'googletagmanager.com',
       'facebook.net',
       'facebook.com/tr',
       'connect.facebook.net',
@@ -77,6 +77,7 @@ export class CategoryManager {
       'adroll.com',
       'taboola.com',
       'outbrain.com',
+      'tiktok.com',
     ]);
 
     this.categories.set('necessary', []);

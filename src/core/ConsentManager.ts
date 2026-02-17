@@ -6,7 +6,7 @@ import { ConsentConfig, ConsentCategories, ConsentRecord } from '../types';
 import { StorageManager } from './StorageManager';
 
 export class ConsentManager {
-  private consent!: ConsentRecord;
+  private consent: ConsentRecord | null = null;
   private config: ConsentConfig;
 
   constructor(config: ConsentConfig) {
@@ -31,6 +31,11 @@ export class ConsentManager {
       }
     }
 
+    // Coerce all values to booleans
+    for (const key of Object.keys(categories)) {
+      categories[key] = categories[key] === true;
+    }
+
     return true;
   }
 
@@ -50,21 +55,20 @@ export class ConsentManager {
    * Check if user needs to give consent
    */
   public needsConsent(): boolean {
-    return this.consent === undefined;
+    return this.consent === null;
   }
 
   /**
    * Check if stored consent needs update due to policy change
    */
   public needsUpdate(storedConsent: ConsentRecord): boolean {
-    // Check if policy version has changed
     return storedConsent.version < this.config.revision;
   }
 
   /**
    * Get current consent record
    */
-  public getCurrentConsent(): ConsentRecord {
+  public getCurrentConsent(): ConsentRecord | null {
     return this.consent;
   }
 
@@ -80,7 +84,6 @@ export class ConsentManager {
       version: this.config.revision,
       timestamp: now.toISOString(),
       categories: { ...categories },
-      userAgent: navigator.userAgent,
       expiresAt: expiryDate.toISOString(),
     };
   }

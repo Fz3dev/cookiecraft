@@ -25,7 +25,7 @@ export declare class ConsentManager {
     /**
      * Get current consent record
      */
-    getCurrentConsent(): ConsentRecord;
+    getCurrentConsent(): ConsentRecord | null;
     /**
      * Create a new consent record
      */

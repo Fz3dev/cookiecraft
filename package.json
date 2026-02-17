@@ -1,6 +1,6 @@
 {
   "name": "cookiecraft",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "type": "module",
   "description": "Lightweight GDPR-compliant cookie consent library for any website",
   "main": "dist/cookiecraft.js",
@@ -15,10 +15,9 @@
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c && npm run size",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:a11y": "jest --testMatch='**/accessibility/**/*.test.ts'",
+    "test": "jest --config jest.config.cjs",
+    "test:watch": "jest --config jest.config.cjs --watch",
+    "test:coverage": "jest --config jest.config.cjs --coverage",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit",
     "size": "size-limit",

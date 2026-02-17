@@ -8,6 +8,7 @@ export declare class PreferenceCenter {
     private element;
     private eventEmitter;
     private currentConsent;
+    private previousActiveElement;
     constructor(config: ConsentConfig, eventEmitter: EventEmitter, currentConsent: ConsentCategories);
     /**
      * Show the preference center
