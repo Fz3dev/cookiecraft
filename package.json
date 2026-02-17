@@ -1,6 +1,6 @@
 {
   "name": "cookiecraft",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "Lightweight GDPR-compliant cookie consent library for any website",
   "main": "dist/cookiecraft.js",
