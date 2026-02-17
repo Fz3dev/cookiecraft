@@ -728,6 +728,96 @@
         </div>
       </div>
 
+      <!-- Card: Categories -->
+      <div class="card">
+        <div class="card__head">
+          <div class="card__icon card__icon--green">
+            <svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+          </div>
+          <h3 class="card__title">Categories</h3>
+        </div>
+        <div class="card__body">
+          <!-- Necessary -->
+          <div class="field" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
+            <div class="toggle-row" style="margin-bottom:8px">
+              <span class="toggle-label">Essentiels</span>
+              <label class="toggle" style="opacity:0.5;pointer-events:none">
+                <input type="checkbox" checked disabled>
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            <input type="text" class="input" id="catNecLabel"
+              value="Essentiels" placeholder="Label"
+              style="margin-bottom:6px;font-size:0.8rem">
+            <input type="text" class="input" id="catNecDesc"
+              value="Necessaires au fonctionnement du site"
+              placeholder="Description" style="font-size:0.8rem">
+          </div>
+          <!-- Analytics -->
+          <div class="field" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
+            <div class="toggle-row" style="margin-bottom:8px">
+              <span class="toggle-label">Analytiques</span>
+              <label class="toggle">
+                <input type="checkbox" id="catAnalytics" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            <div id="catAnalyticsFields">
+              <input type="text" class="input" id="catAnaLabel"
+                value="Statistiques" placeholder="Label"
+                style="margin-bottom:6px;font-size:0.8rem">
+              <input type="text" class="input" id="catAnaDesc"
+                value="Analyse d'audience"
+                placeholder="Description" style="font-size:0.8rem">
+            </div>
+          </div>
+          <!-- Marketing -->
+          <div class="field" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
+            <div class="toggle-row" style="margin-bottom:8px">
+              <span class="toggle-label">Marketing</span>
+              <label class="toggle">
+                <input type="checkbox" id="catMarketing" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            <div id="catMarketingFields">
+              <input type="text" class="input" id="catMktLabel"
+                value="Marketing" placeholder="Label"
+                style="margin-bottom:6px;font-size:0.8rem">
+              <input type="text" class="input" id="catMktDesc"
+                value="Publicite ciblee"
+                placeholder="Description" style="font-size:0.8rem">
+            </div>
+          </div>
+          <!-- Preferences -->
+          <div class="field" style="padding:10px 0">
+            <div class="toggle-row" style="margin-bottom:8px">
+              <span class="toggle-label">Preferences</span>
+              <label class="toggle">
+                <input type="checkbox" id="catPreferences">
+                <span class="toggle-track"></span>
+                <span class="toggle-thumb"></span>
+              </label>
+            </div>
+            <div id="catPreferencesFields" style="display:none">
+              <input type="text" class="input" id="catPrefLabel"
+                value="Preferences" placeholder="Label"
+                style="margin-bottom:6px;font-size:0.8rem">
+              <input type="text" class="input" id="catPrefDesc"
+                value="Personnalisation du site"
+                placeholder="Description" style="font-size:0.8rem">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Card: Disposition -->
       <div class="card">
         <div class="card__head">
@@ -955,7 +1045,13 @@
       description:
         'Ce site utilise des cookies pour ameliorer'
         + ' votre experience de navigation.',
-      privacyUrl: ''
+      privacyUrl: '',
+      categories: {
+        necessary: { enabled: true, label: 'Essentiels', description: 'Necessaires au fonctionnement du site' },
+        analytics: { enabled: true, label: 'Statistiques', description: "Analyse d'audience" },
+        marketing: { enabled: true, label: 'Marketing', description: 'Publicite ciblee' },
+        preferences: { enabled: false, label: 'Preferences', description: 'Personnalisation du site' }
+      }
     };
 
     var ccInstance = null;
@@ -1136,6 +1232,56 @@
       onChange();
     });
 
+    // ── Category toggles & fields ──────────────
+    var catToggles = {
+      analytics: {
+        toggle: document.getElementById('catAnalytics'),
+        fields: document.getElementById('catAnalyticsFields'),
+        label: document.getElementById('catAnaLabel'),
+        desc: document.getElementById('catAnaDesc')
+      },
+      marketing: {
+        toggle: document.getElementById('catMarketing'),
+        fields: document.getElementById('catMarketingFields'),
+        label: document.getElementById('catMktLabel'),
+        desc: document.getElementById('catMktDesc')
+      },
+      preferences: {
+        toggle: document.getElementById('catPreferences'),
+        fields: document.getElementById('catPreferencesFields'),
+        label: document.getElementById('catPrefLabel'),
+        desc: document.getElementById('catPrefDesc')
+      }
+    };
+    var catNecLabel = document.getElementById('catNecLabel');
+    var catNecDesc = document.getElementById('catNecDesc');
+
+    catNecLabel.addEventListener('input', function() {
+      cfg.categories.necessary.label = catNecLabel.value;
+      onChange();
+    });
+    catNecDesc.addEventListener('input', function() {
+      cfg.categories.necessary.description = catNecDesc.value;
+      onChange();
+    });
+
+    ['analytics', 'marketing', 'preferences'].forEach(function(key) {
+      var ct = catToggles[key];
+      ct.toggle.addEventListener('change', function() {
+        cfg.categories[key].enabled = ct.toggle.checked;
+        ct.fields.style.display = ct.toggle.checked ? '' : 'none';
+        onChange();
+      });
+      ct.label.addEventListener('input', function() {
+        cfg.categories[key].label = ct.label.value;
+        onChange();
+      });
+      ct.desc.addEventListener('input', function() {
+        cfg.categories[key].description = ct.desc.value;
+        onChange();
+      });
+    });
+
     // ── Preview ─────────────────────────────────
     function initPreview() {
       if (ccInstance) {
@@ -1153,37 +1299,39 @@
           'Politique de confidentialite';
       }
 
+      var cats = {};
+      cats.necessary = {
+        enabled: true, readOnly: true,
+        label: cfg.categories.necessary.label,
+        description: cfg.categories.necessary.description
+      };
+      if (cfg.categories.analytics.enabled) {
+        cats.analytics = {
+          enabled: false, readOnly: false,
+          label: cfg.categories.analytics.label,
+          description: cfg.categories.analytics.description
+        };
+      }
+      if (cfg.categories.marketing.enabled) {
+        cats.marketing = {
+          enabled: false, readOnly: false,
+          label: cfg.categories.marketing.label,
+          description: cfg.categories.marketing.description
+        };
+      }
+      if (cfg.categories.preferences.enabled) {
+        cats.preferences = {
+          enabled: false, readOnly: false,
+          label: cfg.categories.preferences.label,
+          description: cfg.categories.preferences.description
+        };
+      }
+
       ccInstance = new CookieCraft.CookieConsent({
         mode: 'opt-in',
         autoShow: false,
         revision: 1,
-        categories: {
-          necessary: {
-            enabled: true,
-            readOnly: true,
-            label: 'Essentiels',
-            description:
-              'Necessaires au fonctionnement du site'
-          },
-          analytics: {
-            enabled: false,
-            readOnly: false,
-            label: 'Statistiques',
-            description: 'Analyse d\'audience'
-          },
-          marketing: {
-            enabled: false,
-            readOnly: false,
-            label: 'Marketing',
-            description: 'Publicite ciblee'
-          },
-          preferences: {
-            enabled: false,
-            readOnly: false,
-            label: 'Preferences',
-            description: 'Personnalisation du site'
-          }
-        },
+        categories: cats,
         layout: cfg.layout,
         position: cfg.position,
         theme: cfg.theme,
@@ -1238,6 +1386,18 @@
         opts.push("  <span class=\"prop\">widgetStyle</span>: <span class=\"str\">'" + cfg.widgetStyle + "'</span>");
       if (cfg.gtmConsentMode !== DEFAULTS.gtmConsentMode)
         opts.push("  <span class=\"prop\">gtmConsentMode</span>: " + cfg.gtmConsentMode);
+
+      // Categories
+      var catParts = [];
+      var cc = cfg.categories;
+      catParts.push("    <span class=\"prop\">necessary</span>: { <span class=\"prop\">enabled</span>: true, <span class=\"prop\">readOnly</span>: true, <span class=\"prop\">label</span>: <span class=\"str\">'" + esc(escHtml(cc.necessary.label)) + "'</span>, <span class=\"prop\">description</span>: <span class=\"str\">'" + esc(escHtml(cc.necessary.description)) + "'</span> }");
+      if (cc.analytics.enabled)
+        catParts.push("    <span class=\"prop\">analytics</span>: { <span class=\"prop\">enabled</span>: true, <span class=\"prop\">readOnly</span>: false, <span class=\"prop\">label</span>: <span class=\"str\">'" + esc(escHtml(cc.analytics.label)) + "'</span>, <span class=\"prop\">description</span>: <span class=\"str\">'" + esc(escHtml(cc.analytics.description)) + "'</span> }");
+      if (cc.marketing.enabled)
+        catParts.push("    <span class=\"prop\">marketing</span>: { <span class=\"prop\">enabled</span>: true, <span class=\"prop\">readOnly</span>: false, <span class=\"prop\">label</span>: <span class=\"str\">'" + esc(escHtml(cc.marketing.label)) + "'</span>, <span class=\"prop\">description</span>: <span class=\"str\">'" + esc(escHtml(cc.marketing.description)) + "'</span> }");
+      if (cc.preferences.enabled)
+        catParts.push("    <span class=\"prop\">preferences</span>: { <span class=\"prop\">enabled</span>: true, <span class=\"prop\">readOnly</span>: false, <span class=\"prop\">label</span>: <span class=\"str\">'" + esc(escHtml(cc.preferences.label)) + "'</span>, <span class=\"prop\">description</span>: <span class=\"str\">'" + esc(escHtml(cc.preferences.description)) + "'</span> }");
+      opts.push("  <span class=\"prop\">categories</span>: {\n" + catParts.join(',\n') + '\n  }');
 
       // Translations (only non-default)
       var tParts = [];
