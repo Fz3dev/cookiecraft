@@ -1539,7 +1539,26 @@
          * Validate and set default config values
          */
         validateConfig(config) {
-            return Object.assign(Object.assign({}, config), { categories: config.categories || {}, mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
+            return Object.assign(Object.assign({}, config), { categories: config.categories || {
+                    necessary: {
+                        enabled: true,
+                        readOnly: true,
+                        label: 'Nécessaires',
+                        description: 'Ces cookies sont indispensables au fonctionnement du site.',
+                    },
+                    analytics: {
+                        enabled: true,
+                        readOnly: false,
+                        label: 'Analytiques',
+                        description: 'Ces cookies nous aident à comprendre comment vous utilisez le site.',
+                    },
+                    marketing: {
+                        enabled: true,
+                        readOnly: false,
+                        label: 'Marketing',
+                        description: 'Ces cookies sont utilisés pour vous proposer des publicités pertinentes.',
+                    },
+                }, mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode !== undefined ? config.gtmConsentMode : true, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
         }
     }
 

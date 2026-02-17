@@ -266,7 +266,26 @@ export class CookieConsent {
   private validateConfig(config: ConsentConfig): ConsentConfig {
     return {
       ...config,
-      categories: config.categories || {},
+      categories: config.categories || {
+        necessary: {
+          enabled: true,
+          readOnly: true,
+          label: 'Nécessaires',
+          description: 'Ces cookies sont indispensables au fonctionnement du site.',
+        },
+        analytics: {
+          enabled: true,
+          readOnly: false,
+          label: 'Analytiques',
+          description: 'Ces cookies nous aident à comprendre comment vous utilisez le site.',
+        },
+        marketing: {
+          enabled: true,
+          readOnly: false,
+          label: 'Marketing',
+          description: 'Ces cookies sont utilisés pour vous proposer des publicités pertinentes.',
+        },
+      },
       mode: config.mode || 'opt-in',
       autoShow: config.autoShow !== undefined ? config.autoShow : true,
       revision: config.revision || 1,
