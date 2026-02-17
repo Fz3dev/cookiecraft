@@ -107,21 +107,12 @@ export class PreferenceCenter {
         data-theme="${escapeHtml(theme)}"
         style="${colorStyle}"
       >
-        <div class="cc-modal__overlay" data-action="close"></div>
+        <div class="cc-modal__overlay"></div>
         <div class="cc-modal__content">
           <div class="cc-modal__header">
             <h2 id="cc-modal-title">
               ${escapeHtml(translations.preferencesTitle || translations.title || 'Préférences de cookies')}
             </h2>
-            <button
-              class="cc-modal__close"
-              aria-label="Fermer"
-              data-action="close"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
           </div>
 
           <div class="cc-modal__body">
@@ -200,21 +191,13 @@ export class PreferenceCenter {
       if (!target) return;
       const action = target.getAttribute('data-action');
 
-      if (action === 'close') {
-        this.hide();
-      } else if (action === 'save') {
+      if (action === 'save') {
         this.handleSave();
       } else if (action === 'reject') {
         this.handleRejectAll();
       }
     });
 
-    // Keyboard shortcuts
-    this.element?.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.hide();
-      }
-    });
   }
 
   /**
