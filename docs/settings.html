@@ -254,6 +254,15 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
     }
+    select.input {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+      cursor: pointer;
+    }
     textarea.input {
       resize: vertical;
       min-height: 64px;
@@ -1033,37 +1042,79 @@
       en: {
         title: 'We use cookies',
         description: 'We use cookies to improve your experience on our site. You can choose which cookies you accept.',
-        privacyPolicyLabel: 'Privacy Policy'
+        privacyPolicyLabel: 'Privacy Policy',
+        cats: {
+          necessary: { label: 'Essential', description: 'Required for the website to function properly' },
+          analytics: { label: 'Analytics', description: 'Help us understand how you use our site' },
+          marketing: { label: 'Marketing', description: 'Used to deliver relevant advertisements' },
+          preferences: { label: 'Preferences', description: 'Remember your settings and choices' }
+        }
       },
       fr: {
         title: 'Nous utilisons des cookies',
         description: 'Ce site utilise des cookies pour améliorer votre expérience de navigation.',
-        privacyPolicyLabel: 'Politique de confidentialité'
+        privacyPolicyLabel: 'Politique de confidentialité',
+        cats: {
+          necessary: { label: 'Essentiels', description: 'Nécessaires au fonctionnement du site' },
+          analytics: { label: 'Statistiques', description: "Analyse d'audience" },
+          marketing: { label: 'Marketing', description: 'Publicité ciblée' },
+          preferences: { label: 'Préférences', description: 'Personnalisation du site' }
+        }
       },
       de: {
         title: 'Wir verwenden Cookies',
         description: 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie akzeptieren.',
-        privacyPolicyLabel: 'Datenschutzrichtlinie'
+        privacyPolicyLabel: 'Datenschutzrichtlinie',
+        cats: {
+          necessary: { label: 'Essenziell', description: 'Für die Funktion der Website erforderlich' },
+          analytics: { label: 'Analytik', description: 'Hilft uns zu verstehen, wie Sie unsere Seite nutzen' },
+          marketing: { label: 'Marketing', description: 'Für relevante Werbung' },
+          preferences: { label: 'Einstellungen', description: 'Ihre Einstellungen und Auswahl merken' }
+        }
       },
       es: {
         title: 'Usamos cookies',
         description: 'Este sitio utiliza cookies para mejorar su experiencia. Puede elegir qué cookies acepta.',
-        privacyPolicyLabel: 'Política de privacidad'
+        privacyPolicyLabel: 'Política de privacidad',
+        cats: {
+          necessary: { label: 'Esenciales', description: 'Necesarias para el funcionamiento del sitio' },
+          analytics: { label: 'Analíticas', description: 'Nos ayudan a entender cómo usa el sitio' },
+          marketing: { label: 'Marketing', description: 'Publicidad relevante' },
+          preferences: { label: 'Preferencias', description: 'Recordar su configuración' }
+        }
       },
       it: {
         title: 'Utilizziamo i cookie',
         description: 'Questo sito utilizza i cookie per migliorare la tua esperienza. Puoi scegliere quali cookie accettare.',
-        privacyPolicyLabel: 'Informativa sulla privacy'
+        privacyPolicyLabel: 'Informativa sulla privacy',
+        cats: {
+          necessary: { label: 'Essenziali', description: 'Necessari per il funzionamento del sito' },
+          analytics: { label: 'Analitici', description: 'Ci aiutano a capire come usi il sito' },
+          marketing: { label: 'Marketing', description: 'Pubblicità pertinente' },
+          preferences: { label: 'Preferenze', description: 'Ricordare le tue impostazioni' }
+        }
       },
       nl: {
         title: 'Wij gebruiken cookies',
         description: 'Deze site maakt gebruik van cookies om uw ervaring te verbeteren. U kunt kiezen welke cookies u accepteert.',
-        privacyPolicyLabel: 'Privacybeleid'
+        privacyPolicyLabel: 'Privacybeleid',
+        cats: {
+          necessary: { label: 'Essentieel', description: 'Noodzakelijk voor de werking van de site' },
+          analytics: { label: 'Analytisch', description: 'Helpt ons te begrijpen hoe u de site gebruikt' },
+          marketing: { label: 'Marketing', description: 'Relevante advertenties' },
+          preferences: { label: 'Voorkeuren', description: 'Uw instellingen onthouden' }
+        }
       },
       pt: {
         title: 'Utilizamos cookies',
         description: 'Este site utiliza cookies para melhorar a sua experiência. Pode escolher quais cookies aceita.',
-        privacyPolicyLabel: 'Política de privacidade'
+        privacyPolicyLabel: 'Política de privacidade',
+        cats: {
+          necessary: { label: 'Essenciais', description: 'Necessários para o funcionamento do site' },
+          analytics: { label: 'Analíticos', description: 'Ajudam-nos a entender como usa o site' },
+          marketing: { label: 'Marketing', description: 'Publicidade relevante' },
+          preferences: { label: 'Preferências', description: 'Lembrar as suas definições' }
+        }
       }
     };
 
@@ -1258,6 +1309,22 @@
       cfg.description = lang.description;
       $title.value = lang.title;
       $desc.value = lang.description;
+      // Update category labels & descriptions
+      var cats = lang.cats;
+      ['necessary', 'analytics', 'marketing', 'preferences'].forEach(function(key) {
+        if (cats[key]) {
+          cfg.categories[key].label = cats[key].label;
+          cfg.categories[key].description = cats[key].description;
+        }
+      });
+      catNecLabel.value = cfg.categories.necessary.label;
+      catNecDesc.value = cfg.categories.necessary.description;
+      catToggles.analytics.label.value = cfg.categories.analytics.label;
+      catToggles.analytics.desc.value = cfg.categories.analytics.description;
+      catToggles.marketing.label.value = cfg.categories.marketing.label;
+      catToggles.marketing.desc.value = cfg.categories.marketing.description;
+      catToggles.preferences.label.value = cfg.categories.preferences.label;
+      catToggles.preferences.desc.value = cfg.categories.preferences.description;
       onChange();
     });
 

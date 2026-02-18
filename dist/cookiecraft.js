@@ -689,6 +689,13 @@
             const isModal = this.config.disablePageInteraction;
             const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
             const colorStyle = buildColorStyle(safeColor);
+            const titleHtml = translations.title
+                ? `<h2 class="cc-banner__title">${escapeHtml(translations.title)}</h2>`
+                : '';
+            const descriptionHtml = this.getDescriptionHTML();
+            const descBlock = descriptionHtml
+                ? `<p class="cc-banner__description">${descriptionHtml}</p>`
+                : '';
             const template = `
       <div
         class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
@@ -701,28 +708,10 @@
       >
         <div class="cc-banner__container">
           <div class="cc-banner__content">
-            <h2 class="cc-banner__title">
-              ${escapeHtml(translations.title || 'We use cookies')}
-            </h2>
-            <p class="cc-banner__description">
-              ${this.getDescriptionHTML()}
-            </p>
+            ${titleHtml}
+            ${descBlock}
           </div>
           <div class="cc-banner__actions">
-            <button
-              class="cc-btn cc-btn--ghost"
-              data-action="reject"
-              aria-label="${escapeHtml(translations.rejectAll || 'Essentials only')}"
-            >
-              ${escapeHtml(translations.rejectAll || 'Essentials only')}
-            </button>
-            <button
-              class="cc-btn cc-btn--tertiary"
-              data-action="customize"
-              aria-label="${escapeHtml(translations.customize || 'Customize')}"
-            >
-              ${escapeHtml(translations.customize || 'Customize')}
-            </button>
             <button
               class="cc-btn cc-btn--accept"
               data-action="accept"
@@ -826,16 +815,21 @@
          */
         getDescriptionHTML() {
             const translations = this.config.translations || {};
-            const defaultDescription = 'We use cookies to improve your experience on our site. You can choose which cookies you accept.';
-            const description = escapeHtml(translations.description || defaultDescription);
+            if (!translations.description)
+                return '';
+            const description = escapeHtml(translations.description);
+            const customizeLabel = escapeHtml(translations.customize || 'Customize');
+            let html = description;
             if (translations.privacyPolicyUrl) {
                 const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
                 if (safeUrl) {
                     const linkLabel = escapeHtml(translations.privacyPolicyLabel || 'Privacy Policy');
-                    return `${description} <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
+                    html += ` <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
                 }
             }
-            return description;
+            // Inline customize link at end of description
+            html += ` <span class="cc-banner__customize" data-action="customize">${customizeLabel}</span>`;
+            return html;
         }
     }
 

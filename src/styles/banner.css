@@ -109,6 +109,13 @@
   color: var(--cc-primary-hover);
 }
 
+.cc-banner__customize {
+  cursor: pointer;
+  color: var(--cc-text);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 /* Banner Actions */
 .cc-banner__actions {
   display: flex;
