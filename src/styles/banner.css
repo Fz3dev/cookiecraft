@@ -111,9 +111,9 @@
 
 .cc-banner__customize {
   cursor: pointer;
-  color: var(--cc-text);
-  font-weight: 500;
-  text-decoration: underline;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
 }
 
 /* Banner Actions */
