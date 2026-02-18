@@ -14,6 +14,7 @@ import { FloatingWidget } from '../ui/FloatingWidget';
 import { GTMConsentMode } from '../integrations/GTMConsentMode';
 import { DataLayerManager } from '../integrations/DataLayerManager';
 import { clearDeniedCookies } from '../utils/cookies';
+import { builtInTranslations } from '../i18n/translations';
 
 // Import CSS
 import '../styles/banner.css';
@@ -287,8 +288,14 @@ export class CookieConsent {
    * Validate and set default config values
    */
   private validateConfig(config: ConsentConfig): ConsentConfig {
+    // Merge built-in language translations with user overrides
+    const langKey = config.language?.toLowerCase().split('-')[0] || 'en';
+    const langDefaults = builtInTranslations[langKey] || builtInTranslations['en'];
+    const mergedTranslations = { ...langDefaults, ...config.translations };
+
     return {
       ...config,
+      translations: mergedTranslations,
       categories: config.categories || {
         necessary: {
           enabled: true,

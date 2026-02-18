@@ -1392,6 +1392,111 @@ function clearDeniedCookies(categories) {
 }
 
 /**
+ * Built-in translations for supported languages
+ * Users can override any string via config.translations
+ */
+const en = {
+    title: 'We use cookies',
+    description: 'We use cookies to improve your experience on our site. You can choose which cookies you accept.',
+    acceptAll: 'Accept all',
+    rejectAll: 'Essentials only',
+    customize: 'Customize',
+    savePreferences: 'Save preferences',
+    essentialsOnly: 'Essentials only',
+    preferencesTitle: 'Cookie Preferences',
+    cookieSettings: 'Cookie settings',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Privacy Policy',
+};
+const fr = {
+    title: 'Nous utilisons des cookies',
+    description: 'Ce site utilise des cookies pour améliorer votre expérience de navigation. Vous pouvez choisir les cookies que vous acceptez.',
+    acceptAll: 'Tout accepter',
+    rejectAll: 'Essentiels uniquement',
+    customize: 'Personnaliser',
+    savePreferences: 'Enregistrer',
+    essentialsOnly: 'Essentiels uniquement',
+    preferencesTitle: 'Préférences des cookies',
+    cookieSettings: 'Paramètres des cookies',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Politique de confidentialité',
+};
+const de = {
+    title: 'Wir verwenden Cookies',
+    description: 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie akzeptieren.',
+    acceptAll: 'Alle akzeptieren',
+    rejectAll: 'Nur essenzielle',
+    customize: 'Anpassen',
+    savePreferences: 'Speichern',
+    essentialsOnly: 'Nur essenzielle',
+    preferencesTitle: 'Cookie-Einstellungen',
+    cookieSettings: 'Cookie-Einstellungen',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Datenschutzrichtlinie',
+};
+const es = {
+    title: 'Usamos cookies',
+    description: 'Este sitio utiliza cookies para mejorar su experiencia. Puede elegir qué cookies acepta.',
+    acceptAll: 'Aceptar todo',
+    rejectAll: 'Solo esenciales',
+    customize: 'Personalizar',
+    savePreferences: 'Guardar',
+    essentialsOnly: 'Solo esenciales',
+    preferencesTitle: 'Preferencias de cookies',
+    cookieSettings: 'Configuración de cookies',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Política de privacidad',
+};
+const it = {
+    title: 'Utilizziamo i cookie',
+    description: 'Questo sito utilizza i cookie per migliorare la tua esperienza. Puoi scegliere quali cookie accettare.',
+    acceptAll: 'Accetta tutti',
+    rejectAll: 'Solo essenziali',
+    customize: 'Personalizza',
+    savePreferences: 'Salva',
+    essentialsOnly: 'Solo essenziali',
+    preferencesTitle: 'Preferenze cookie',
+    cookieSettings: 'Impostazioni cookie',
+    cookies: 'Cookie',
+    privacyPolicyLabel: 'Informativa sulla privacy',
+};
+const nl = {
+    title: 'Wij gebruiken cookies',
+    description: 'Deze site maakt gebruik van cookies om uw ervaring te verbeteren. U kunt kiezen welke cookies u accepteert.',
+    acceptAll: 'Alles accepteren',
+    rejectAll: 'Alleen essentieel',
+    customize: 'Aanpassen',
+    savePreferences: 'Opslaan',
+    essentialsOnly: 'Alleen essentieel',
+    preferencesTitle: 'Cookie-voorkeuren',
+    cookieSettings: 'Cookie-instellingen',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Privacybeleid',
+};
+const pt = {
+    title: 'Utilizamos cookies',
+    description: 'Este site utiliza cookies para melhorar a sua experiência. Pode escolher quais cookies aceita.',
+    acceptAll: 'Aceitar todos',
+    rejectAll: 'Apenas essenciais',
+    customize: 'Personalizar',
+    savePreferences: 'Guardar',
+    essentialsOnly: 'Apenas essenciais',
+    preferencesTitle: 'Preferências de cookies',
+    cookieSettings: 'Definições de cookies',
+    cookies: 'Cookies',
+    privacyPolicyLabel: 'Política de privacidade',
+};
+const builtInTranslations = {
+    en,
+    fr,
+    de,
+    es,
+    it,
+    nl,
+    pt,
+};
+
+/**
  * CookieConsent - Main orchestrator class
  */
 class CookieConsent {
@@ -1620,7 +1725,12 @@ class CookieConsent {
      * Validate and set default config values
      */
     validateConfig(config) {
-        return Object.assign(Object.assign({}, config), { categories: config.categories || {
+        var _a;
+        // Merge built-in language translations with user overrides
+        const langKey = ((_a = config.language) === null || _a === void 0 ? void 0 : _a.toLowerCase().split('-')[0]) || 'en';
+        const langDefaults = builtInTranslations[langKey] || builtInTranslations['en'];
+        const mergedTranslations = Object.assign(Object.assign({}, langDefaults), config.translations);
+        return Object.assign(Object.assign({}, config), { translations: mergedTranslations, categories: config.categories || {
                 necessary: {
                     enabled: true,
                     readOnly: true,

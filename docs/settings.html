@@ -706,6 +706,18 @@
         </div>
         <div class="card__body">
           <div class="field">
+            <span class="field__label">Langue</span>
+            <select class="input" id="cfgLanguage">
+              <option value="fr" selected>Francais</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="es">Espanol</option>
+              <option value="it">Italiano</option>
+              <option value="nl">Nederlands</option>
+              <option value="pt">Portugues</option>
+            </select>
+          </div>
+          <div class="field">
             <span class="field__label">Titre</span>
             <input type="text" class="input" id="cfgTitle"
               value="Nous utilisons des cookies">
@@ -1016,8 +1028,48 @@
 
   <script>
   (function() {
+    // ── Built-in translations ─────────────────────
+    var LANGS = {
+      en: {
+        title: 'We use cookies',
+        description: 'We use cookies to improve your experience on our site. You can choose which cookies you accept.',
+        privacyPolicyLabel: 'Privacy Policy'
+      },
+      fr: {
+        title: 'Nous utilisons des cookies',
+        description: 'Ce site utilise des cookies pour améliorer votre expérience de navigation.',
+        privacyPolicyLabel: 'Politique de confidentialité'
+      },
+      de: {
+        title: 'Wir verwenden Cookies',
+        description: 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie akzeptieren.',
+        privacyPolicyLabel: 'Datenschutzrichtlinie'
+      },
+      es: {
+        title: 'Usamos cookies',
+        description: 'Este sitio utiliza cookies para mejorar su experiencia. Puede elegir qué cookies acepta.',
+        privacyPolicyLabel: 'Política de privacidad'
+      },
+      it: {
+        title: 'Utilizziamo i cookie',
+        description: 'Questo sito utilizza i cookie per migliorare la tua esperienza. Puoi scegliere quali cookie accettare.',
+        privacyPolicyLabel: 'Informativa sulla privacy'
+      },
+      nl: {
+        title: 'Wij gebruiken cookies',
+        description: 'Deze site maakt gebruik van cookies om uw ervaring te verbeteren. U kunt kiezen welke cookies u accepteert.',
+        privacyPolicyLabel: 'Privacybeleid'
+      },
+      pt: {
+        title: 'Utilizamos cookies',
+        description: 'Este site utiliza cookies para melhorar a sua experiência. Pode escolher quais cookies aceita.',
+        privacyPolicyLabel: 'Política de privacidade'
+      }
+    };
+
     // ── Defaults ─────────────────────────────────
     var DEFAULTS = {
+      language: 'fr',
       layout: 'box',
       position: 'bottom-left',
       theme: 'light',
@@ -1030,6 +1082,7 @@
 
     // ── State ────────────────────────────────────
     var cfg = {
+      language: 'fr',
       layout: 'box',
       position: 'bottom-left',
       theme: 'light',
@@ -1038,22 +1091,21 @@
       widgetPosition: 'bottom-left',
       widgetStyle: 'compact',
       gtmConsentMode: true,
-      title: 'Nous utilisons des cookies',
-      description:
-        'Ce site utilise des cookies pour ameliorer'
-        + ' votre experience de navigation.',
+      title: LANGS.fr.title,
+      description: LANGS.fr.description,
       privacyUrl: '',
       categories: {
-        necessary: { enabled: true, label: 'Essentiels', description: 'Necessaires au fonctionnement du site' },
+        necessary: { enabled: true, label: 'Essentiels', description: 'Nécessaires au fonctionnement du site' },
         analytics: { enabled: true, label: 'Statistiques', description: "Analyse d'audience" },
-        marketing: { enabled: true, label: 'Marketing', description: 'Publicite ciblee' },
-        preferences: { enabled: false, label: 'Preferences', description: 'Personnalisation du site' }
+        marketing: { enabled: true, label: 'Marketing', description: 'Publicité ciblée' },
+        preferences: { enabled: false, label: 'Préférences', description: 'Personnalisation du site' }
       }
     };
 
     var ccInstance = null;
 
     // ── DOM refs ─────────────────────────────────
+    var $language = document.getElementById('cfgLanguage');
     var $color = document.getElementById('cfgColor');
     var $colorHex = document.getElementById('cfgColorHex');
     var $colorBar = document.getElementById('colorBar');
@@ -1198,6 +1250,17 @@
       onChange();
     }
 
+    // ── Language select ────────────────────────────
+    $language.addEventListener('change', function() {
+      cfg.language = $language.value;
+      var lang = LANGS[cfg.language] || LANGS.en;
+      cfg.title = lang.title;
+      cfg.description = lang.description;
+      $title.value = lang.title;
+      $desc.value = lang.description;
+      onChange();
+    });
+
     // ── Text fields ─────────────────────────────
     $title.addEventListener('input', function() {
       cfg.title = $title.value;
@@ -1292,8 +1355,6 @@
       };
       if (cfg.privacyUrl) {
         translations.privacyPolicyUrl = cfg.privacyUrl;
-        translations.privacyPolicyLabel =
-          'Politique de confidentialite';
       }
 
       var cats = {};
@@ -1328,6 +1389,7 @@
         mode: 'opt-in',
         autoShow: false,
         revision: 1,
+        language: cfg.language,
         categories: cats,
         layout: cfg.layout,
         position: cfg.position,
@@ -1367,6 +1429,7 @@
 
       // Non-default options
       var opts = [];
+      opts.push("  <span class=\"prop\">language</span>: <span class=\"str\">'" + cfg.language + "'</span>");
       if (cfg.layout !== DEFAULTS.layout)
         opts.push("  <span class=\"prop\">layout</span>: <span class=\"str\">'" + cfg.layout + "'</span>");
       if (cfg.position !== DEFAULTS.position)
@@ -1404,7 +1467,6 @@
       tParts.push("    <span class=\"prop\">description</span>: <span class=\"str\">'" + d + "'</span>");
       if (cfg.privacyUrl) {
         tParts.push("    <span class=\"prop\">privacyPolicyUrl</span>: <span class=\"str\">'" + esc(escHtml(cfg.privacyUrl)) + "'</span>");
-        tParts.push("    <span class=\"prop\">privacyPolicyLabel</span>: <span class=\"str\">'Politique de confidentialite'</span>");
       }
       opts.push("  <span class=\"prop\">translations</span>: {\n" + tParts.join(',\n') + '\n  }');
 
