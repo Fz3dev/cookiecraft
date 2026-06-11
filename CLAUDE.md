@@ -33,6 +33,8 @@ TypeScript, Rollup, PostCSS (autoprefixer + cssnano), Jest, size-limit. No runti
 - `npm run type-check` — TypeScript validation
 - `npm run size` — Bundle size limit check (JS < 12 KB, CSS < 3 KB)
 
+CI (`.github/workflows/ci.yml`) runs lint + type-check + test + build on every push/PR. Check it is green after pushing.
+
 ## Architecture Patterns
 
 - **Event-driven** — Central `EventEmitter` for all component communication. Never call components directly.
@@ -50,7 +52,8 @@ TypeScript, Rollup, PostCSS (autoprefixer + cssnano), Jest, size-limit. No runti
 ## Storage
 
 - LocalStorage key: `cookiecraft_consent`
-- Consent records include timestamp, categories, userAgent, 13-month expiry.
+- Consent records include version, timestamp, categories, expiresAt.
+- Expiry defaults to 6 months (CNIL recommendation), configurable via `consentExpiryMonths`.
 - `ConsentManager.validateConsent()` skips validation when categories config is empty.
 
 ## Distribution
@@ -74,6 +77,9 @@ TypeScript, Rollup, PostCSS (autoprefixer + cssnano), Jest, size-limit. No runti
 - `EventEmitter.emit()` wraps callbacks in try/catch — errors in handlers are silently caught. Check console carefully.
 - `ConsentManager.validateConsent()` rejects consent if category keys don't match config. When categories config is `{}`, validation is skipped.
 - PreferenceCenter modal has no close button (GDPR: user must make an explicit choice).
+- Preference toggles are **preselected on purpose** when no prior consent (product choice) — do not "fix" them to unticked.
+- The banner must always render both Accept AND Reject buttons (CNIL: refusing must be as easy as accepting). Regression-tested in `tests/Banner.test.ts`.
+- `dist/` is committed (served via GitHub raw/CDN fallbacks): always `npm run build` before committing src changes, or dist drifts.
 
 ---
 
@@ -102,13 +108,13 @@ TypeScript, Rollup, PostCSS (autoprefixer + cssnano), Jest, size-limit. No runti
 
 ### Tools
 
-| Need          | Use      | Avoid                          |
-| ------------- | -------- | ------------------------------ |
-| Read a file   | `Read`   | `cat`, `head`, `tail` via Bash |
-| Search code   | `Grep`   | `grep`, `rg` via Bash          |
-| Find files    | `Glob`   | `find`, `ls` via Bash          |
-| Edit a file   | `Edit`   | `sed`, `awk` via Bash          |
-| Create a file | `Write`  | `echo >`, `cat <<EOF` via Bash |
+| Need          | Use     | Avoid                          |
+| ------------- | ------- | ------------------------------ |
+| Read a file   | `Read`  | `cat`, `head`, `tail` via Bash |
+| Search code   | `Grep`  | `grep`, `rg` via Bash          |
+| Find files    | `Glob`  | `find`, `ls` via Bash          |
+| Edit a file   | `Edit`  | `sed`, `awk` via Bash          |
+| Create a file | `Write` | `echo >`, `cat <<EOF` via Bash |
 
 Bash is reserved for: git commands, npm commands, curl (CDN purge), and system commands.
 
