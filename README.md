@@ -12,7 +12,7 @@ Zero dependencies. Modern UI. Google Consent Mode v2 built-in. Works on Webflow,
 
 ## Features
 
-- **GDPR Compliant** — Opt-in only, one-click "Reject all", unticked preference toggles, cookie purge on rejection, 6-month consent expiry (CNIL)
+- **GDPR Compliant** — Opt-in only, one-click "Reject all", cookie purge on rejection, 6-month consent expiry (CNIL)
 - **Lightweight** — < 15KB total (JS + CSS), zero runtime dependencies
 - **Modern UI** — Clean design, dark/light/auto themes, smooth animations
 - **GTM Ready** — Google Consent Mode v2 built-in (ad_storage, analytics_storage, etc.)

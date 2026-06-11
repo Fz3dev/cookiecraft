@@ -1623,11 +1623,11 @@
         showPreferences() {
             var _a;
             const stored = (_a = this.storageManager.load()) === null || _a === void 0 ? void 0 : _a.categories;
-            // GDPR (Planet49): toggles must be OFF by default when no prior consent
+            // Intentional product choice: toggles preselected when no prior consent
             const currentConsent = stored || {
                 necessary: true,
-                analytics: false,
-                marketing: false,
+                analytics: true,
+                marketing: true,
             };
             // Add any configured categories not in current consent
             for (const key of Object.keys(this.config.categories)) {

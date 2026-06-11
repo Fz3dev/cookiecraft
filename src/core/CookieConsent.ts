@@ -153,11 +153,11 @@ export class CookieConsent {
    */
   public showPreferences(): void {
     const stored = this.storageManager.load()?.categories;
-    // GDPR (Planet49): toggles must be OFF by default when no prior consent
+    // Intentional product choice: toggles preselected when no prior consent
     const currentConsent: ConsentCategories = stored || {
       necessary: true,
-      analytics: false,
-      marketing: false,
+      analytics: true,
+      marketing: true,
     };
 
     // Add any configured categories not in current consent
