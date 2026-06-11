@@ -1,10 +1,10 @@
 /**
  * StorageManager - Manages localStorage persistence for consent records
  */
-import { ConsentRecord } from '../types';
+import { ConsentRecord } from "../types";
 export declare class StorageManager {
     private static readonly STORAGE_KEY;
-    static readonly EXPIRY_MONTHS = 13;
+    static readonly EXPIRY_MONTHS = 6;
     /**
      * Save consent record to localStorage
      */

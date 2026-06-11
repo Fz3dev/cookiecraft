@@ -38,28 +38,33 @@ export interface Translation {
 
 export interface ConsentConfig {
   // Core settings
-  mode: 'opt-in' | 'opt-out';
   autoShow: boolean;
   revision: number;
+  consentExpiryMonths?: number;
 
   // Categories
   categories: Record<string, CategoryConfig>;
 
   // UI customization
-  theme?: 'light' | 'dark' | 'auto';
-  position?: 'bottom' | 'top' | 'center' | 'bottom-left' | 'bottom-right';
-  layout?: 'bar' | 'box' | 'floating';
+  theme?: "light" | "dark" | "auto";
+  position?: "bottom" | "top" | "center" | "bottom-left" | "bottom-right";
+  layout?: "bar" | "box" | "floating";
   primaryColor?: string;
   backdropBlur?: boolean;
-  animationStyle?: 'smooth' | 'minimal';
+  animationStyle?: "smooth" | "minimal";
 
   // Preferences modal position
-  preferencesPosition?: 'center' | 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+  preferencesPosition?:
+    | "center"
+    | "bottom-left"
+    | "bottom-right"
+    | "top-left"
+    | "top-right";
 
   // Floating widget
   showWidget?: boolean;
-  widgetPosition?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
-  widgetStyle?: 'compact' | 'full';
+  widgetPosition?: "bottom-left" | "bottom-right" | "top-left" | "top-right";
+  widgetStyle?: "compact" | "full";
 
   // Content
   language?: string;
@@ -89,30 +94,30 @@ export interface ConsentRecord {
 }
 
 export interface GTMConsent {
-  [key: string]: 'granted' | 'denied';
-  ad_storage: 'granted' | 'denied';
-  ad_user_data: 'granted' | 'denied';
-  ad_personalization: 'granted' | 'denied';
-  analytics_storage: 'granted' | 'denied';
-  functionality_storage: 'granted' | 'denied';
-  personalization_storage: 'granted' | 'denied';
-  security_storage: 'granted' | 'denied';
+  [key: string]: "granted" | "denied";
+  ad_storage: "granted" | "denied";
+  ad_user_data: "granted" | "denied";
+  ad_personalization: "granted" | "denied";
+  analytics_storage: "granted" | "denied";
+  functionality_storage: "granted" | "denied";
+  personalization_storage: "granted" | "denied";
+  security_storage: "granted" | "denied";
 }
 
 export type EventCallback = (...args: any[]) => void;
 
 export type ConsentEvent =
-  | 'consent:init'
-  | 'consent:show'
-  | 'consent:hide'
-  | 'consent:accept'
-  | 'consent:reject'
-  | 'consent:update'
-  | 'consent:load'
-  | 'consent:expire'
-  | 'preferences:show'
-  | 'preferences:hide'
-  | 'script:activated';
+  | "consent:init"
+  | "consent:show"
+  | "consent:hide"
+  | "consent:accept"
+  | "consent:reject"
+  | "consent:update"
+  | "consent:load"
+  | "consent:expire"
+  | "preferences:show"
+  | "preferences:hide"
+  | "script:activated";
 
 // Extend Window interface for GTM
 declare global {

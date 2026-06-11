@@ -2,8 +2,8 @@
  * ConsentManager - Handles consent logic and validation
  */
 
-import { ConsentConfig, ConsentCategories, ConsentRecord } from '../types';
-import { StorageManager } from './StorageManager';
+import { ConsentConfig, ConsentCategories, ConsentRecord } from "../types";
+import { StorageManager } from "./StorageManager";
 
 export class ConsentManager {
   private consent: ConsentRecord | null = null;
@@ -23,7 +23,10 @@ export class ConsentManager {
     }
 
     // Validate against config (skip if no categories configured)
-    if (this.config.categories && Object.keys(this.config.categories).length > 0) {
+    if (
+      this.config.categories &&
+      Object.keys(this.config.categories).length > 0
+    ) {
       for (const key of Object.keys(categories)) {
         if (!(key in this.config.categories)) {
           return false;
@@ -44,18 +47,11 @@ export class ConsentManager {
    */
   public updateConsent(categories: ConsentCategories): ConsentRecord {
     if (!this.validateConsent(categories)) {
-      throw new Error('Invalid consent categories');
+      throw new Error("Invalid consent categories");
     }
 
     this.consent = this.createConsentRecord(categories);
     return this.consent;
-  }
-
-  /**
-   * Check if user needs to give consent
-   */
-  public needsConsent(): boolean {
-    return this.consent === null;
   }
 
   /**
@@ -78,7 +74,9 @@ export class ConsentManager {
   private createConsentRecord(categories: ConsentCategories): ConsentRecord {
     const now = new Date();
     const expiryDate = new Date(now);
-    expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
+    const expiryMonths =
+      this.config.consentExpiryMonths ?? StorageManager.EXPIRY_MONTHS;
+    expiryDate.setMonth(expiryDate.getMonth() + expiryMonths);
 
     return {
       version: this.config.revision,

@@ -1,11 +1,11 @@
 /**
  * CookieConsent - Main orchestrator class
  */
-import { ConsentConfig, ConsentCategories, ConsentRecord, ConsentEvent, EventCallback } from '../types';
-import '../styles/banner.css';
-import '../styles/animations.css';
-import '../styles/preferences.css';
-import '../styles/widget.css';
+import { ConsentConfig, ConsentCategories, ConsentRecord, ConsentEvent, EventCallback } from "../types";
+import "../styles/banner.css";
+import "../styles/animations.css";
+import "../styles/preferences.css";
+import "../styles/widget.css";
 export declare class CookieConsent {
     private config;
     private consentManager;
@@ -16,7 +16,6 @@ export declare class CookieConsent {
     private preferenceCenter;
     private floatingWidget;
     private gtmIntegration;
-    private hideTimeout;
     constructor(config: ConsentConfig);
     /**
      * Initialize the cookie consent system

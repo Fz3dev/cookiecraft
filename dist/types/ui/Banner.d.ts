@@ -1,8 +1,8 @@
 /**
  * Banner - Cookie consent banner component
  */
-import { ConsentConfig } from '../types';
-import { EventEmitter } from '../core/EventEmitter';
+import { ConsentConfig } from "../types";
+import { EventEmitter } from "../core/EventEmitter";
 export declare class Banner {
     private config;
     private element;

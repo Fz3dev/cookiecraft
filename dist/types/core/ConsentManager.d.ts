@@ -1,7 +1,7 @@
 /**
  * ConsentManager - Handles consent logic and validation
  */
-import { ConsentConfig, ConsentCategories, ConsentRecord } from '../types';
+import { ConsentConfig, ConsentCategories, ConsentRecord } from "../types";
 export declare class ConsentManager {
     private consent;
     private config;
@@ -14,10 +14,6 @@ export declare class ConsentManager {
      * Update consent with new categories
      */
     updateConsent(categories: ConsentCategories): ConsentRecord;
-    /**
-     * Check if user needs to give consent
-     */
-    needsConsent(): boolean;
     /**
      * Check if stored consent needs update due to policy change
      */

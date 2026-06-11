@@ -11,8 +11,9 @@ export class DataLayerManager {
   private ensureGtag(): void {
     window.dataLayer = window.dataLayer || [];
 
-    if (typeof window.gtag !== 'function') {
+    if (typeof window.gtag !== "function") {
       window.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params -- GTM requires the Arguments object, an array breaks Consent Mode
         window.dataLayer!.push(arguments);
       };
     }
@@ -22,9 +23,12 @@ export class DataLayerManager {
    * Push consent command via gtag (correct format for Google Consent Mode v2)
    * Usage: pushConsent('default', {...}) or pushConsent('update', {...})
    */
-  public pushConsent(action: string, params: Record<string, string | number>): void {
+  public pushConsent(
+    action: string,
+    params: Record<string, string | number>,
+  ): void {
     this.ensureGtag();
-    window.gtag!('consent', action, params);
+    window.gtag!("consent", action, params);
   }
 
   /**
@@ -33,6 +37,6 @@ export class DataLayerManager {
    */
   public pushSet(key: string, value: boolean | string | number): void {
     this.ensureGtag();
-    window.gtag!('set', key, value);
+    window.gtag!("set", key, value);
   }
 }

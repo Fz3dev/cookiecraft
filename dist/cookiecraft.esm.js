@@ -10,7 +10,7 @@ class StorageManager {
             localStorage.setItem(StorageManager.STORAGE_KEY, JSON.stringify(consent));
         }
         catch (e) {
-            console.error('Failed to save consent:', e);
+            console.error("Failed to save consent:", e);
         }
     }
     /**
@@ -35,7 +35,7 @@ class StorageManager {
             return parsed;
         }
         catch (e) {
-            console.error('Failed to load consent:', e);
+            console.error("Failed to load consent:", e);
             return null;
         }
     }
@@ -47,7 +47,7 @@ class StorageManager {
             localStorage.removeItem(StorageManager.STORAGE_KEY);
         }
         catch (e) {
-            console.error('Failed to clear consent:', e);
+            console.error("Failed to clear consent:", e);
         }
     }
     /**
@@ -64,21 +64,21 @@ class StorageManager {
      */
     validateSchema(data) {
         return (data &&
-            typeof data.version === 'number' &&
-            typeof data.timestamp === 'string' &&
-            typeof data.categories === 'object' &&
-            typeof data.expiresAt === 'string');
+            typeof data.version === "number" &&
+            typeof data.timestamp === "string" &&
+            typeof data.categories === "object" &&
+            typeof data.expiresAt === "string");
     }
     /**
      * Migrate old consent format to new format
      * Returns null if migration fails
      */
     migrate(data) {
-        if (!data || typeof data !== 'object')
+        if (!data || typeof data !== "object")
             return null;
         const record = data;
         // Attempt to reconstruct a valid record from partial data
-        if (record.categories && typeof record.categories === 'object') {
+        if (record.categories && typeof record.categories === "object") {
             const now = new Date();
             const expiryDate = new Date(now);
             expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
@@ -89,21 +89,26 @@ class StorageManager {
                 analytics: rawCategories.analytics === true,
                 marketing: rawCategories.marketing === true,
             };
-            if ('preferences' in rawCategories) {
+            if ("preferences" in rawCategories) {
                 categories.preferences = rawCategories.preferences === true;
             }
             return {
-                version: typeof record.version === 'number' ? record.version : 1,
-                timestamp: typeof record.timestamp === 'string' ? record.timestamp : now.toISOString(),
+                version: typeof record.version === "number" ? record.version : 1,
+                timestamp: typeof record.timestamp === "string"
+                    ? record.timestamp
+                    : now.toISOString(),
                 categories,
-                expiresAt: typeof record.expiresAt === 'string' ? record.expiresAt : expiryDate.toISOString(),
+                expiresAt: typeof record.expiresAt === "string"
+                    ? record.expiresAt
+                    : expiryDate.toISOString(),
             };
         }
         return null;
     }
 }
-StorageManager.STORAGE_KEY = 'cookiecraft_consent';
-StorageManager.EXPIRY_MONTHS = 13;
+StorageManager.STORAGE_KEY = "cookiecraft_consent";
+// CNIL recommends 6 months consent validity (configurable via consentExpiryMonths)
+StorageManager.EXPIRY_MONTHS = 6;
 
 /**
  * ConsentManager - Handles consent logic and validation
@@ -122,7 +127,8 @@ class ConsentManager {
             return false;
         }
         // Validate against config (skip if no categories configured)
-        if (this.config.categories && Object.keys(this.config.categories).length > 0) {
+        if (this.config.categories &&
+            Object.keys(this.config.categories).length > 0) {
             for (const key of Object.keys(categories)) {
                 if (!(key in this.config.categories)) {
                     return false;
@@ -140,16 +146,10 @@ class ConsentManager {
      */
     updateConsent(categories) {
         if (!this.validateConsent(categories)) {
-            throw new Error('Invalid consent categories');
+            throw new Error("Invalid consent categories");
         }
         this.consent = this.createConsentRecord(categories);
         return this.consent;
-    }
-    /**
-     * Check if user needs to give consent
-     */
-    needsConsent() {
-        return this.consent === null;
     }
     /**
      * Check if stored consent needs update due to policy change
@@ -167,9 +167,11 @@ class ConsentManager {
      * Create a new consent record
      */
     createConsentRecord(categories) {
+        var _a;
         const now = new Date();
         const expiryDate = new Date(now);
-        expiryDate.setMonth(expiryDate.getMonth() + StorageManager.EXPIRY_MONTHS);
+        const expiryMonths = (_a = this.config.consentExpiryMonths) !== null && _a !== void 0 ? _a : StorageManager.EXPIRY_MONTHS;
+        expiryDate.setMonth(expiryDate.getMonth() + expiryMonths);
         return {
             version: this.config.revision,
             timestamp: now.toISOString(),
@@ -618,7 +620,8 @@ class Banner {
         }
         const append = () => {
             if (!this.element) {
-                this.previousActiveElement = document.activeElement;
+                this.previousActiveElement =
+                    document.activeElement;
                 this.element = this.createDOM();
                 document.body.appendChild(this.element);
                 this.attachListeners();
@@ -626,16 +629,16 @@ class Banner {
             // Trigger animation
             requestAnimationFrame(() => {
                 var _a;
-                (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('is-visible');
+                (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add("is-visible");
             });
             // Disable page interaction if configured
             if (this.config.disablePageInteraction) {
-                document.body.style.overflow = 'hidden';
+                document.body.style.overflow = "hidden";
                 this.trapFocus();
             }
         };
         if (!document.body) {
-            document.addEventListener('DOMContentLoaded', append);
+            document.addEventListener("DOMContentLoaded", append);
             return;
         }
         append();
@@ -645,9 +648,9 @@ class Banner {
      */
     hide() {
         var _a;
-        (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.remove('is-visible');
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.remove("is-visible");
         if (this.config.disablePageInteraction) {
-            document.body.style.overflow = '';
+            document.body.style.overflow = "";
         }
         this.hideTimeout = setTimeout(() => {
             this.destroy();
@@ -666,7 +669,8 @@ class Banner {
             this.element = null;
         }
         // Restore focus
-        if (this.previousActiveElement && document.contains(this.previousActiveElement)) {
+        if (this.previousActiveElement &&
+            document.contains(this.previousActiveElement)) {
             this.previousActiveElement.focus();
             this.previousActiveElement = null;
         }
@@ -676,25 +680,27 @@ class Banner {
      */
     createDOM() {
         const translations = this.config.translations || {};
-        const theme = this.config.theme || 'light';
-        const position = this.config.position || 'bottom';
-        const layout = this.config.layout || 'bar';
+        const theme = this.config.theme || "light";
+        const position = this.config.position || "bottom";
+        const layout = this.config.layout || "bar";
         const backdropBlur = this.config.backdropBlur !== false;
         const isModal = this.config.disablePageInteraction;
-        const safeColor = this.config.primaryColor ? sanitizeColor(this.config.primaryColor) : '';
+        const safeColor = this.config.primaryColor
+            ? sanitizeColor(this.config.primaryColor)
+            : "";
         const colorStyle = buildColorStyle(safeColor);
         const titleHtml = translations.title
             ? `<h2 class="cc-banner__title">${escapeHtml(translations.title)}</h2>`
-            : '';
+            : "";
         const descriptionHtml = this.getDescriptionHTML();
         const descBlock = descriptionHtml
             ? `<p class="cc-banner__description">${descriptionHtml}</p>`
-            : '';
+            : "";
         const template = `
       <div
-        class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? 'cc-backdrop-blur' : ''}"
-        role="${isModal ? 'dialog' : 'region'}"
-        ${isModal ? 'aria-modal="true"' : ''}
+        class="cc-banner cc-banner--${escapeHtml(position)} cc-banner--${escapeHtml(layout)} ${backdropBlur ? "cc-backdrop-blur" : ""}"
+        role="${isModal ? "dialog" : "region"}"
+        ${isModal ? 'aria-modal="true"' : ""}
         aria-label="Cookie consent"
         aria-live="polite"
         data-theme="${escapeHtml(theme)}"
@@ -709,15 +715,22 @@ class Banner {
             <button
               class="cc-btn cc-btn--accept"
               data-action="accept"
-              aria-label="${escapeHtml(translations.acceptAll || 'Accept all')}"
+              aria-label="${escapeHtml(translations.acceptAll || "Accept all")}"
             >
-              ${escapeHtml(translations.acceptAll || 'Accept all')}
+              ${escapeHtml(translations.acceptAll || "Accept all")}
+            </button>
+            <button
+              class="cc-btn cc-btn--reject"
+              data-action="reject"
+              aria-label="${escapeHtml(translations.rejectAll || "Reject all")}"
+            >
+              ${escapeHtml(translations.rejectAll || "Reject all")}
             </button>
           </div>
         </div>
       </div>
     `;
-        const wrapper = document.createElement('div');
+        const wrapper = document.createElement("div");
         wrapper.innerHTML = template.trim();
         return wrapper.firstChild;
     }
@@ -726,25 +739,25 @@ class Banner {
      */
     attachListeners() {
         var _a, _b;
-        (_a = this.element) === null || _a === void 0 ? void 0 : _a.addEventListener('click', (e) => {
-            const target = e.target.closest('[data-action]');
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (e) => {
+            const target = e.target.closest("[data-action]");
             if (!target)
                 return;
-            const action = target.getAttribute('data-action');
+            const action = target.getAttribute("data-action");
             switch (action) {
-                case 'accept':
+                case "accept":
                     this.handleAcceptAll();
                     break;
-                case 'reject':
+                case "reject":
                     this.handleRejectAll();
                     break;
-                case 'customize':
+                case "customize":
                     this.handleCustomize();
                     break;
             }
         });
-        (_b = this.element) === null || _b === void 0 ? void 0 : _b.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.config.disablePageInteraction) {
+        (_b = this.element) === null || _b === void 0 ? void 0 : _b.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && this.config.disablePageInteraction) {
                 this.handleRejectAll();
             }
         });
@@ -753,31 +766,39 @@ class Banner {
      * Handle accept all action
      */
     handleAcceptAll() {
-        const allCategories = { necessary: true, analytics: true, marketing: true };
+        const allCategories = {
+            necessary: true,
+            analytics: true,
+            marketing: true,
+        };
         // Add all configured categories
         for (const key of Object.keys(this.config.categories)) {
             allCategories[key] = true;
         }
-        this.eventEmitter.emit('consent:accept', allCategories);
+        this.eventEmitter.emit("consent:accept", allCategories);
         this.hide();
     }
     /**
      * Handle reject all action
      */
     handleRejectAll() {
-        const necessaryOnly = { necessary: true, analytics: false, marketing: false };
+        const necessaryOnly = {
+            necessary: true,
+            analytics: false,
+            marketing: false,
+        };
         for (const key of Object.keys(this.config.categories)) {
-            if (key !== 'necessary')
+            if (key !== "necessary")
                 necessaryOnly[key] = false;
         }
-        this.eventEmitter.emit('consent:reject', necessaryOnly);
+        this.eventEmitter.emit("consent:reject", necessaryOnly);
         this.hide();
     }
     /**
      * Handle customize action
      */
     handleCustomize() {
-        this.eventEmitter.emit('preferences:show');
+        this.eventEmitter.emit("preferences:show");
         this.hide();
     }
     /**
@@ -791,8 +812,8 @@ class Banner {
         const firstFocusable = focusableElements[0];
         const lastFocusable = focusableElements[focusableElements.length - 1];
         firstFocusable === null || firstFocusable === void 0 ? void 0 : firstFocusable.focus();
-        (_b = this.element) === null || _b === void 0 ? void 0 : _b.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
+        (_b = this.element) === null || _b === void 0 ? void 0 : _b.addEventListener("keydown", (e) => {
+            if (e.key === "Tab") {
                 if (e.shiftKey && document.activeElement === firstFocusable) {
                     e.preventDefault();
                     lastFocusable.focus();
@@ -810,14 +831,14 @@ class Banner {
     getDescriptionHTML() {
         const translations = this.config.translations || {};
         if (!translations.description)
-            return '';
+            return "";
         const description = escapeHtml(translations.description);
-        const customizeLabel = escapeHtml(translations.customize || 'Customize');
+        const customizeLabel = escapeHtml(translations.customize || "Customize");
         let html = description;
         if (translations.privacyPolicyUrl) {
             const safeUrl = sanitizeUrl(translations.privacyPolicyUrl);
             if (safeUrl) {
-                const linkLabel = escapeHtml(translations.privacyPolicyLabel || 'Privacy Policy');
+                const linkLabel = escapeHtml(translations.privacyPolicyLabel || "Privacy Policy");
                 html += ` <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkLabel}</a>`;
             }
         }
@@ -1265,8 +1286,9 @@ class DataLayerManager {
      */
     ensureGtag() {
         window.dataLayer = window.dataLayer || [];
-        if (typeof window.gtag !== 'function') {
+        if (typeof window.gtag !== "function") {
             window.gtag = function () {
+                // eslint-disable-next-line prefer-rest-params -- GTM requires the Arguments object, an array breaks Consent Mode
                 window.dataLayer.push(arguments);
             };
         }
@@ -1277,7 +1299,7 @@ class DataLayerManager {
      */
     pushConsent(action, params) {
         this.ensureGtag();
-        window.gtag('consent', action, params);
+        window.gtag("consent", action, params);
     }
     /**
      * Push a 'set' command via gtag for advanced features
@@ -1285,7 +1307,7 @@ class DataLayerManager {
      */
     pushSet(key, value) {
         this.ensureGtag();
-        window.gtag('set', key, value);
+        window.gtag("set", key, value);
     }
 }
 
@@ -1390,95 +1412,95 @@ function clearDeniedCookies(categories) {
  * Users can override any string via config.translations
  */
 const en = {
-    title: 'We use cookies',
-    description: 'We use cookies to improve your experience on our site. You can choose which cookies you accept.',
-    acceptAll: 'Accept all',
-    rejectAll: 'Essentials only',
-    customize: 'Manage preferences',
-    savePreferences: 'Save preferences',
-    essentialsOnly: 'Essentials only',
-    preferencesTitle: 'Cookie Preferences',
-    cookieSettings: 'Cookie settings',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Privacy Policy',
+    title: "We use cookies",
+    description: "We use cookies to improve your experience on our site. You can choose which cookies you accept.",
+    acceptAll: "Accept all",
+    rejectAll: "Reject all",
+    customize: "Manage preferences",
+    savePreferences: "Save preferences",
+    essentialsOnly: "Essentials only",
+    preferencesTitle: "Cookie Preferences",
+    cookieSettings: "Cookie settings",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Privacy Policy",
 };
 const fr = {
-    title: 'Nous utilisons des cookies',
-    description: 'Ce site utilise des cookies pour améliorer votre expérience de navigation. Vous pouvez choisir les cookies que vous acceptez.',
-    acceptAll: 'Tout accepter',
-    rejectAll: 'Essentiels uniquement',
-    customize: 'Gérer mes préférences',
-    savePreferences: 'Enregistrer',
-    essentialsOnly: 'Essentiels uniquement',
-    preferencesTitle: 'Préférences des cookies',
-    cookieSettings: 'Paramètres des cookies',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Politique de confidentialité',
+    title: "Nous utilisons des cookies",
+    description: "Ce site utilise des cookies pour améliorer votre expérience de navigation. Vous pouvez choisir les cookies que vous acceptez.",
+    acceptAll: "Tout accepter",
+    rejectAll: "Tout refuser",
+    customize: "Gérer mes préférences",
+    savePreferences: "Enregistrer",
+    essentialsOnly: "Essentiels uniquement",
+    preferencesTitle: "Préférences des cookies",
+    cookieSettings: "Paramètres des cookies",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Politique de confidentialité",
 };
 const de = {
-    title: 'Wir verwenden Cookies',
-    description: 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie akzeptieren.',
-    acceptAll: 'Alle akzeptieren',
-    rejectAll: 'Nur essenzielle',
-    customize: 'Einstellungen verwalten',
-    savePreferences: 'Speichern',
-    essentialsOnly: 'Nur essenzielle',
-    preferencesTitle: 'Cookie-Einstellungen',
-    cookieSettings: 'Cookie-Einstellungen',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Datenschutzrichtlinie',
+    title: "Wir verwenden Cookies",
+    description: "Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Sie können wählen, welche Cookies Sie akzeptieren.",
+    acceptAll: "Alle akzeptieren",
+    rejectAll: "Alle ablehnen",
+    customize: "Einstellungen verwalten",
+    savePreferences: "Speichern",
+    essentialsOnly: "Nur essenzielle",
+    preferencesTitle: "Cookie-Einstellungen",
+    cookieSettings: "Cookie-Einstellungen",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Datenschutzrichtlinie",
 };
 const es = {
-    title: 'Usamos cookies',
-    description: 'Este sitio utiliza cookies para mejorar su experiencia. Puede elegir qué cookies acepta.',
-    acceptAll: 'Aceptar todo',
-    rejectAll: 'Solo esenciales',
-    customize: 'Gestionar preferencias',
-    savePreferences: 'Guardar',
-    essentialsOnly: 'Solo esenciales',
-    preferencesTitle: 'Preferencias de cookies',
-    cookieSettings: 'Configuración de cookies',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Política de privacidad',
+    title: "Usamos cookies",
+    description: "Este sitio utiliza cookies para mejorar su experiencia. Puede elegir qué cookies acepta.",
+    acceptAll: "Aceptar todo",
+    rejectAll: "Rechazar todo",
+    customize: "Gestionar preferencias",
+    savePreferences: "Guardar",
+    essentialsOnly: "Solo esenciales",
+    preferencesTitle: "Preferencias de cookies",
+    cookieSettings: "Configuración de cookies",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Política de privacidad",
 };
 const it = {
-    title: 'Utilizziamo i cookie',
-    description: 'Questo sito utilizza i cookie per migliorare la tua esperienza. Puoi scegliere quali cookie accettare.',
-    acceptAll: 'Accetta tutti',
-    rejectAll: 'Solo essenziali',
-    customize: 'Gestisci preferenze',
-    savePreferences: 'Salva',
-    essentialsOnly: 'Solo essenziali',
-    preferencesTitle: 'Preferenze cookie',
-    cookieSettings: 'Impostazioni cookie',
-    cookies: 'Cookie',
-    privacyPolicyLabel: 'Informativa sulla privacy',
+    title: "Utilizziamo i cookie",
+    description: "Questo sito utilizza i cookie per migliorare la tua esperienza. Puoi scegliere quali cookie accettare.",
+    acceptAll: "Accetta tutti",
+    rejectAll: "Rifiuta tutti",
+    customize: "Gestisci preferenze",
+    savePreferences: "Salva",
+    essentialsOnly: "Solo essenziali",
+    preferencesTitle: "Preferenze cookie",
+    cookieSettings: "Impostazioni cookie",
+    cookies: "Cookie",
+    privacyPolicyLabel: "Informativa sulla privacy",
 };
 const nl = {
-    title: 'Wij gebruiken cookies',
-    description: 'Deze site maakt gebruik van cookies om uw ervaring te verbeteren. U kunt kiezen welke cookies u accepteert.',
-    acceptAll: 'Alles accepteren',
-    rejectAll: 'Alleen essentieel',
-    customize: 'Voorkeuren beheren',
-    savePreferences: 'Opslaan',
-    essentialsOnly: 'Alleen essentieel',
-    preferencesTitle: 'Cookie-voorkeuren',
-    cookieSettings: 'Cookie-instellingen',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Privacybeleid',
+    title: "Wij gebruiken cookies",
+    description: "Deze site maakt gebruik van cookies om uw ervaring te verbeteren. U kunt kiezen welke cookies u accepteert.",
+    acceptAll: "Alles accepteren",
+    rejectAll: "Alles weigeren",
+    customize: "Voorkeuren beheren",
+    savePreferences: "Opslaan",
+    essentialsOnly: "Alleen essentieel",
+    preferencesTitle: "Cookie-voorkeuren",
+    cookieSettings: "Cookie-instellingen",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Privacybeleid",
 };
 const pt = {
-    title: 'Utilizamos cookies',
-    description: 'Este site utiliza cookies para melhorar a sua experiência. Pode escolher quais cookies aceita.',
-    acceptAll: 'Aceitar todos',
-    rejectAll: 'Apenas essenciais',
-    customize: 'Gerir preferências',
-    savePreferences: 'Guardar',
-    essentialsOnly: 'Apenas essenciais',
-    preferencesTitle: 'Preferências de cookies',
-    cookieSettings: 'Definições de cookies',
-    cookies: 'Cookies',
-    privacyPolicyLabel: 'Política de privacidade',
+    title: "Utilizamos cookies",
+    description: "Este site utiliza cookies para melhorar a sua experiência. Pode escolher quais cookies aceita.",
+    acceptAll: "Aceitar todos",
+    rejectAll: "Rejeitar todos",
+    customize: "Gerir preferências",
+    savePreferences: "Guardar",
+    essentialsOnly: "Apenas essenciais",
+    preferencesTitle: "Preferências de cookies",
+    cookieSettings: "Definições de cookies",
+    cookies: "Cookies",
+    privacyPolicyLabel: "Política de privacidade",
 };
 const builtInTranslations = {
     en,
@@ -1499,9 +1521,8 @@ class CookieConsent {
         this.preferenceCenter = null;
         this.floatingWidget = null;
         this.gtmIntegration = null;
-        this.hideTimeout = null;
         // SSR guard
-        if (typeof window === 'undefined') {
+        if (typeof window === "undefined") {
             this.config = config;
             this.consentManager = null;
             this.storageManager = null;
@@ -1518,22 +1539,22 @@ class CookieConsent {
             this.gtmIntegration = new GTMConsentMode(new DataLayerManager(), this.config);
         }
         // Listen for consent events — callbacks are fired AFTER consent is persisted
-        this.eventEmitter.on('consent:accept', (categories) => {
+        this.eventEmitter.on("consent:accept", (categories) => {
             var _a, _b;
             this.updateConsent(categories);
             (_b = (_a = this.config).onAccept) === null || _b === void 0 ? void 0 : _b.call(_a, categories);
         });
-        this.eventEmitter.on('consent:reject', (categories) => {
+        this.eventEmitter.on("consent:reject", (categories) => {
             var _a, _b;
             this.updateConsent(categories);
             (_b = (_a = this.config).onReject) === null || _b === void 0 ? void 0 : _b.call(_a);
         });
-        this.eventEmitter.on('consent:update', (categories) => {
+        this.eventEmitter.on("consent:update", (categories) => {
             var _a, _b;
             this.updateConsent(categories);
             (_b = (_a = this.config).onChange) === null || _b === void 0 ? void 0 : _b.call(_a, categories);
         });
-        this.eventEmitter.on('preferences:show', () => {
+        this.eventEmitter.on("preferences:show", () => {
             this.showPreferences();
         });
     }
@@ -1541,7 +1562,7 @@ class CookieConsent {
      * Initialize the cookie consent system
      */
     init() {
-        if (typeof window === 'undefined')
+        if (typeof window === "undefined")
             return;
         // 1. Start blocking scripts immediately
         this.scriptBlocker.init();
@@ -1562,7 +1583,7 @@ class CookieConsent {
                 if (this.gtmIntegration) {
                     this.gtmIntegration.updateConsent(storedConsent.categories);
                 }
-                this.eventEmitter.emit('consent:load', storedConsent);
+                this.eventEmitter.emit("consent:load", storedConsent);
                 if (this.config.showWidget) {
                     this.showFloatingWidget();
                 }
@@ -1575,7 +1596,7 @@ class CookieConsent {
         }
         // Store instance globally
         window.cookieConsent = this;
-        this.eventEmitter.emit('consent:init');
+        this.eventEmitter.emit("consent:init");
     }
     /**
      * Show the banner
@@ -1596,16 +1617,16 @@ class CookieConsent {
     showPreferences() {
         var _a;
         const stored = (_a = this.storageManager.load()) === null || _a === void 0 ? void 0 : _a.categories;
-        // Default to all ON when no prior consent
+        // GDPR (Planet49): toggles must be OFF by default when no prior consent
         const currentConsent = stored || {
             necessary: true,
-            analytics: true,
-            marketing: true,
+            analytics: false,
+            marketing: false,
         };
         // Add any configured categories not in current consent
         for (const key of Object.keys(this.config.categories)) {
             if (!(key in currentConsent)) {
-                currentConsent[key] = key === 'necessary';
+                currentConsent[key] = key === "necessary";
             }
         }
         if (this.preferenceCenter) {
@@ -1644,9 +1665,13 @@ class CookieConsent {
         var _a, _b;
         this.storageManager.clear();
         this.scriptBlocker.block();
-        const denied = { necessary: true, analytics: false, marketing: false };
+        const denied = {
+            necessary: true,
+            analytics: false,
+            marketing: false,
+        };
         for (const key of Object.keys(this.config.categories)) {
-            if (key !== 'necessary')
+            if (key !== "necessary")
                 denied[key] = false;
         }
         clearDeniedCookies(denied);
@@ -1673,10 +1698,6 @@ class CookieConsent {
      */
     destroy() {
         var _a, _b, _c, _d;
-        if (this.hideTimeout) {
-            clearTimeout(this.hideTimeout);
-            this.hideTimeout = null;
-        }
         (_a = this.banner) === null || _a === void 0 ? void 0 : _a.destroy();
         this.banner = null;
         (_b = this.preferenceCenter) === null || _b === void 0 ? void 0 : _b.destroy();
@@ -1697,7 +1718,7 @@ class CookieConsent {
             this.banner = new Banner(this.config, this.eventEmitter);
         }
         this.banner.show();
-        this.eventEmitter.emit('consent:show');
+        this.eventEmitter.emit("consent:show");
     }
     /**
      * Show the floating widget
@@ -1721,29 +1742,29 @@ class CookieConsent {
     validateConfig(config) {
         var _a;
         // Merge built-in language translations with user overrides
-        const langKey = ((_a = config.language) === null || _a === void 0 ? void 0 : _a.toLowerCase().split('-')[0]) || 'en';
-        const langDefaults = builtInTranslations[langKey] || builtInTranslations['en'];
+        const langKey = ((_a = config.language) === null || _a === void 0 ? void 0 : _a.toLowerCase().split("-")[0]) || "en";
+        const langDefaults = builtInTranslations[langKey] || builtInTranslations["en"];
         const mergedTranslations = Object.assign(Object.assign({}, langDefaults), config.translations);
         return Object.assign(Object.assign({}, config), { translations: mergedTranslations, categories: config.categories || {
                 necessary: {
                     enabled: true,
                     readOnly: true,
-                    label: 'Essential',
-                    description: 'Required for the website to function properly.',
+                    label: "Essential",
+                    description: "Required for the website to function properly.",
                 },
                 analytics: {
                     enabled: true,
                     readOnly: false,
-                    label: 'Analytics',
-                    description: 'Help us understand how you use our site.',
+                    label: "Analytics",
+                    description: "Help us understand how you use our site.",
                 },
                 marketing: {
                     enabled: true,
                     readOnly: false,
-                    label: 'Marketing',
-                    description: 'Used to deliver relevant advertisements.',
+                    label: "Marketing",
+                    description: "Used to deliver relevant advertisements.",
                 },
-            }, mode: config.mode || 'opt-in', autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || 'light', position: config.position || 'bottom-left', layout: config.layout || 'box', backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || 'smooth', preferencesPosition: config.preferencesPosition || 'center', showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || 'bottom-left', widgetStyle: config.widgetStyle || 'compact' });
+            }, autoShow: config.autoShow !== undefined ? config.autoShow : true, revision: config.revision || 1, consentExpiryMonths: config.consentExpiryMonths || 6, gtmConsentMode: config.gtmConsentMode || false, disablePageInteraction: config.disablePageInteraction || false, theme: config.theme || "light", position: config.position || "bottom-left", layout: config.layout || "box", backdropBlur: config.backdropBlur !== false, animationStyle: config.animationStyle || "smooth", preferencesPosition: config.preferencesPosition || "center", showWidget: config.showWidget !== undefined ? config.showWidget : true, widgetPosition: config.widgetPosition || "bottom-left", widgetStyle: config.widgetStyle || "compact" });
     }
 }
 
